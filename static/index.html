@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Rota 2 Motopeças: demonstração acadêmica de catálogo e pedidos simulados, construída com REA e gates executáveis." />
+  <title>Rota 2 Motopeças | Peças para seguir em frente</title>
+  <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/static/styles.css" />
+  <script defer src="/static/app.js"></script>
+</head>
+<body>
+  <div class="topline"><div class="container topline-inner"><span>PROTÓTIPO ACADÊMICO • REA + ANTIGRAVITY</span><span>Sem pagamentos reais • Catálogo fictício</span></div></div>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="/" aria-label="Rota 2 Motopeças, início"><span class="brand-symbol">R<span>2</span></span><span class="brand-text"><strong>ROTA 2</strong><small>MOTOPEÇAS</small></span></a>
+      <form id="header-search" role="search" class="search-bar">
+        <label for="search" class="sr-only">Buscar peças ou código SKU</label>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg>
+        <input id="search" type="search" placeholder="Busque pastilha, óleo, corrente, SKU..." maxlength="80" autocomplete="off" />
+        <button type="submit" aria-label="Buscar peças">Buscar</button>
+      </form>
+      <div class="header-actions"><a href="#vantagens" class="desktop-link">Como funciona</a><button id="cart-open" class="cart-button" type="button" aria-label="Abrir carrinho">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.3 11h11.2l2-8H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg><span>Carrinho</span><span id="cart-badge" class="cart-badge">0</span>
+      </button></div>
+    </div>
+  </header>
+  <main>
+    <section class="hero"><div class="container hero-inner"><div class="hero-copy"><span class="eyebrow"><i></i> PEÇAS CERTAS. CAMINHOS ABERTOS.</span><h1>Sua moto merece <em>seguir em frente.</em></h1><p>Encontre peças de manutenção com uma navegação descomplicada, filtros de compatibilidade e uma experiência de compra simulada.</p><a href="#catalogo" class="primary-cta">Explorar peças <span aria-hidden="true">↗</span></a><span class="hero-note">Ilustração e produtos demonstrativos — não use para decidir a compatibilidade de peças reais.</span></div><div class="hero-visual"><span class="circle circle-one"></span><span class="circle circle-two"></span><img src="/static/img/moto.svg" alt="Ilustração original de uma motocicleta"/><div class="hero-sticker">REVISÃO<br/><strong>EM DIA</strong><span>● ● ●</span></div></div></div></section>
+    <section class="benefits" id="vantagens"><div class="container benefits-grid"><div><span class="benefit-icon">◎</span><div><strong>Encontre por modelo</strong><small>Filtre pela sua motocicleta</small></div></div><div><span class="benefit-icon">✦</span><div><strong>Catálogo organizado</strong><small>Freios, filtros e transmissão</small></div></div><div><span class="benefit-icon">✓</span><div><strong>Pedido simulado</strong><small>Fluxo funcional, sem cobrança</small></div></div><div><span class="benefit-icon">≡</span><div><strong>Projeto verificável</strong><small>API, testes e evidências</small></div></div></div></section>
+    <section class="catalogue container" id="catalogo"><div class="section-heading"><div><span class="section-kicker">CATÁLOGO / EXPLORE</span><h2>Peças para cada jornada<span class="orange-dot">.</span></h2><p>Explore peças por categoria ou selecione um modelo para refinar a busca.</p></div><div class="result-count" id="result-count" aria-live="polite">Carregando catálogo...</div></div>
+      <div class="filter-panel"><label>Categoria<select id="category"><option value="">Todas as categorias</option></select></label><label>Modelo da moto<select id="bike"><option value="">Todos os modelos</option></select></label><label>Ano de fabricação<select id="year" disabled><option value="">Todos os anos</option></select></label><button type="button" id="clear-filters" class="clear-button">Limpar filtros ×</button></div>
+      <div id="category-tabs" class="category-tabs" role="group" aria-label="Filtrar por categoria"></div>
+      <div id="products" class="product-grid" aria-live="polite"></div><div id="empty-state" class="empty-state" hidden><strong>Nenhuma peça encontrada.</strong><p>Tente outra busca ou remova os filtros selecionados.</p></div>
+    </section>
+    <section class="about-strip"><div class="container about-inner"><div><span class="section-kicker">MAIS QUE UMA LOJA DEMONSTRATIVA</span><h2>Engenharia que você consegue verificar.</h2><p>Projeto construído para ensino de engenharia reversa assistida por IA: API documentada, regras testáveis, rastreabilidade e gates de segurança.</p></div><div class="about-stats"><div><strong>12</strong><span>produtos fictícios</span></div><div><strong>7</strong><span>gates REA</span></div><div><strong>0</strong><span>pagamentos processados</span></div></div></div></section>
+    <section class="container faq"><span class="section-kicker">TRANSPARÊNCIA</span><h2>Dúvidas rápidas</h2><details><summary>Esta é uma loja real?</summary><p>Não. É um MVP didático com identidade original e produtos, preços e compatibilidades simulados.</p></details><details><summary>Os pedidos geram cobrança ou entrega?</summary><p>Não. O pedido é gravado localmente como SIMULADO para demonstrar transações, estoque e idempotência.</p></details><details><summary>Os filtros garantem encaixe da peça?</summary><p>Não. As compatibilidades são fictícias para fins de desenvolvimento. Para compras reais, verifique modelo, ano, versão, chassi e catálogo do fabricante.</p></details></section>
+  </main>
+  <footer><div class="container footer-inner"><div class="brand footer-brand"><span class="brand-symbol">R<span>2</span></span><span class="brand-text"><strong>ROTA 2</strong><small>MOTOPEÇAS</small></span></div><span>Protótipo educacional de REA • 2026 • Sem vínculo com a loja de referência.</span><a href="/docs" target="_blank" rel="noopener noreferrer">Documentação da API ↗</a></div></footer>
+  <div id="cart-overlay" class="overlay" hidden></div><aside id="cart-drawer" class="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title" aria-hidden="true"><div class="drawer-header"><div><span class="section-kicker">SEU PEDIDO</span><h2 id="cart-title">Meu carrinho</h2></div><button type="button" id="cart-close" class="icon-button" aria-label="Fechar carrinho">×</button></div><div class="cart-info">Este carrinho simula o processo de compra. Não há pagamento ou entrega.</div><div id="cart-items" class="cart-items"></div><div class="drawer-footer"><div class="subtotal"><span>Subtotal demonstrativo</span><strong id="cart-subtotal">R$ 0,00</strong></div><button id="checkout" class="checkout-button" type="button" disabled>Finalizar pedido simulado <span>→</span></button><p id="order-message" role="status" aria-live="polite"></p></div></aside>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

@@ -1,0 +1,14 @@
+requirement,description,component,test,gate,status
+RF-01,"Listagem e categorias","app/main.py; static/app.js",test_health_and_catalogue,G4,PASS_LOCAL
+RF-02,"Busca por termo e SKU","app/main.py",test_search_and_category,G4,PASS_LOCAL
+RF-03,"Filtro por categoria","app/main.py",test_search_and_category,G4,PASS_LOCAL
+RF-04,"Compatibilidade demonstrativa por moto e ano","app/main.py; app/catalog.py",test_bike_compatibility_filter,G4,PASS_LOCAL
+RF-05,"Carrinho e total indicativo","static/app.js",manual_browser_smoke,G6,NOT_VERIFIED_BROWSER
+RF-06,"Pedido simulado","app/main.py",test_order_total_server_side_and_inventory,G4,PASS_LOCAL
+RF-07,"Estoque transacional e rollback","app/main.py; app/db.py",test_order_atomic_rollback_on_stock_failure,G4,PASS_LOCAL
+RF-08,"Idempotência","app/main.py",test_idempotency_replays_without_double_debit,G4,PASS_LOCAL
+RF-09,"Métricas demonstrativas","app/main.py",test_order_total_server_side_and_inventory,G4,PASS_LOCAL
+RF-10,"CLI de gestão de estoque","app/manage.py",manual_cli_smoke,G6,NOT_VERIFIED_CLI
+NFR-01,"Headers e CSP","app/main.py",test_home_and_headers,G5,PASS_LOCAL
+NFR-02,"Validação e SQL parametrizado","app/main.py",test_parameterized_query_not_injection;test_reject_bad_payloads,G5,PASS_LOCAL
+NFR-03,"Revisão independente no Antigravity",".agents/skills/rea-verify/SKILL.md",independent_agent_review,G6,NOT_EXECUTED

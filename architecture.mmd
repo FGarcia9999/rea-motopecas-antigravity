@@ -1,0 +1,22 @@
+flowchart LR
+  R[Regimotos: site público<br/>observação funcional] --> D[Descoberta REA<br/>evidência x hipótese]
+  D --> S[Especificação RF + critérios<br/>riscos e rastreabilidade]
+  S --> O[Antigravity 2.0 + LLM<br/>Agent Skills + Rules]
+  O --> A[Agente implementador<br/>TDD RED/GREEN]
+  O --> V[Agente verificador<br/>independente]
+  O -. ferramentas nativas / MCP .-> M[(Browser / Git / Filesystem / Terminal)]
+  A --> FE[Frontend responsivo<br/>HTML CSS JS]
+  A --> API[API Python FastAPI]
+  API --> DB[(SQLite + estoque<br/>transacional)]
+  FE --> API
+  FE --> G{G1...G7<br/>Gates}
+  API --> G
+  V --> G
+  G -->|PASS| OUT[README + testes + SHA256<br/>GitHub público após autorização]
+  G -->|FAIL| W[REWORK / issue]
+  W --> A
+  G -->|NEEDS HUMAN| H[Revisão e aprovação humana]
+  classDef major fill:#0d2230,color:#fff,stroke:#1ca59a,stroke-width:2px;
+  classDef gate fill:#fff4e6,color:#733e12,stroke:#f7773e,stroke-width:2px;
+  class O,API,OUT major;
+  class G,W,H gate;

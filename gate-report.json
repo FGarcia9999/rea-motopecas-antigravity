@@ -1,0 +1,61 @@
+{
+  "kind": "REA gate report",
+  "date_utc": "2026-11-03T09:17:42.272935+00:00",
+  "checks": [
+    {
+      "command": "/opt/pyvenv/bin/python -m compileall -q app",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "/opt/pyvenv/bin/python -m pytest -q tests",
+      "exit_code": 0,
+      "stdout": "................                                                         [100%]\n",
+      "stderr": ""
+    }
+  ],
+  "file_sha256": {
+    ".agents/rules/rea.md": "0a8a404b381790a4a94723b49bc3d4d246c73b38fbf2c8ad828e48beea8eca03",
+    ".agents/skills/rea-build/SKILL.md": "3a3c308ea9243a6fca7d348cbf809c6b8ad906fe539d6159bc7de5e56974f64b",
+    ".agents/skills/rea-discovery/SKILL.md": "c337ee5ce8974e8d336a1cc176eca95fdc390bb015a4f9f9530aade835512cc5",
+    ".agents/skills/rea-verify/SKILL.md": "5addb9b7fa5e37da7ce7b763f3168c21eb237e43654995f3b86e72008df17ea1",
+    ".github/workflows/ci.yml": "3efdb318be2ee996026254aa8d7cc30b5d87168d1f9adaf04c16f25d6e54e9ee",
+    ".pytest_cache/README.md": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad",
+    "AGENTS.md": "e555045aea967b890fb9270de56cf5142bb54b4d46d301e67530640f4a937321",
+    "README.md": "5a1c583e48a359e3a169f2132c36d43a1ad9fc23682b9ac96a22bb1f7f4ea94f",
+    "app/__init__.py": "5780155d51133713d50c1f7aaa67efd3056a3dbc27b65692c61ad2fbc9caea71",
+    "app/catalog.py": "c0cf61960c65fdf0025c70513bf1423c4c1f5063c31823b4fed00680de4efea0",
+    "app/db.py": "761495787ffc7ac3f004c8a8335b9c551bc7478581fe67aaa169815387cdfa6f",
+    "app/main.py": "6a45487dd8cc959b459422aee8f539815b9862b159207bea9e9ee2695863ff41",
+    "app/manage.py": "d1087e37b4dfe761c48b63cd666017767bd14001ba33587e30b3ffe82345fe92",
+    "docs/REA_WORKFLOW.md": "d67dd282953f5917fc47bdba5b70f8dcc2a7d9057a4b2a5c305850f9c5c72776",
+    "docs/architecture.mmd": "7f379f26b183c57f7641e551a85254afd7cff4fc39eabd72e43d171527448053",
+    "docs/arquitetura-rea.png": "aaf2d07c5cc4ab91695d50f0999ab1b0fb48a1ba2948386d60fd0af31b9a8604",
+    "docs/discovery.md": "0d446dd7f850658eca4a6a4bc7df1f0a91f649413880af2823b584f98681a115",
+    "docs/threat-model.md": "664e489d041802bfa82dd6ecd709ab4d4c74511d23b9791a9f6be90265d585ff",
+    "docs/traceability.csv": "fcc8e565c0aa7c37d7578fbd30b87e9a39b438c50450cce7de3748ee24c5c920",
+    "pyproject.toml": "8b43181d2f45f23e507943f4db70397106fea69d0b3fb2f7cbbb56fefd7c9d85",
+    "requirements-dev.txt": "a446308a360a40ab97cf6fdb303c171d2eed6d4d566c967d4b637eed67c3d600",
+    "requirements.txt": "b2b6fb06e8271c868c620414ebf41983bd9d863c2d937dd239cf0a31cf269d4a",
+    "scripts/gate.py": "f76b9b4841f59c4ced0203d5c9fcf4a6b480f4989e1d0e89ea698ca05cbf8622",
+    "scripts/render_offline_preview.py": "bf4652ea51e8da0045a486b14515d5cee754c58ba69fcbe811398907150ce820",
+    "static/app.js": "5ebadf8b642f4bad46da943fa5489c4e3bc8b7b8d0f9206fe8fb696097b5bff4",
+    "static/img/favicon.svg": "623a334417fc597b7742f811ab6f174dbaafbb7a4445c32b459f1cfcf51d7c9e",
+    "static/img/filtro.svg": "e1f2889f4c530d2af1321ccc67d4518de3dc1b473f8426e6497994340d2a851b",
+    "static/img/freio.svg": "54e63fe53115da790c3ad049f160e70880c1ac0374150304cb77bd24f516919d",
+    "static/img/lampada.svg": "d66620e375695285de0f85037b41640a685fce8da1b56b1d89413a3135c20227",
+    "static/img/moto.svg": "2bb0a585877e348a43789ef45cf228931aa065566b8cb15c746907e26da2cbc8",
+    "static/img/oleo.svg": "9c381f45b3f79b299f8023ab3085b3901f6bd1bf9d7dd62927daf47c76a96478",
+    "static/img/suspensao.svg": "bd73e3b0921d0b483f8eb2a9b91f7c1c6c530d36c5febf14baab089084f38d9c",
+    "static/img/transmissao.svg": "4abbb0e385ab4235abd52da96f1617a332a9fb7c0a440dd2763e736588bcfde0",
+    "static/img/vela.svg": "ebb6ccef7e493b8665241b95f7ed4f150feda115a4a73bdfc38938bef949dedd",
+    "static/index.html": "a7f3775a3709974b9b5be38a8229d15820fafdbcfec8eda307fa4a41b1ecb771",
+    "static/styles.css": "87d8c538d63b8a36e7fca82d2e4b43883d0847c5023ab5e76effc7e0b41cc01d",
+    "tests/conftest.py": "7aada3248fec6ffe0a804f88c74e8016c41fb2c420e6793f1bb06d0d10dc17a4",
+    "tests/test_api.py": "d73401d351d4d4044b0749510f1433c3f1f00fce5b3c479cb6ed7036b5543310",
+    "tests/test_cli.py": "1d032d0ad484224dfff3f09f66b61a9e1b2cfe04f637d5b63d878319b1b278f5"
+  },
+  "status": "PASS",
+  "independent_review": "NOT PERFORMED: independent agent review requires Antigravity execution"
+}
