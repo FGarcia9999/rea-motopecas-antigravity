@@ -72,3 +72,15 @@ Requisito `RF-07` estoque:
 - Não inserir segredos em prompts, logs, commits, screenshots ou LLM público.
 - MCP: privilégios mínimos, servidores pinados e auditados, ações de escrita desabilitadas durante discovery; publicar GitHub só com autorização explícita.
 - O LLM deve informar claramente quando não executou uma ferramenta e quando a evidência é apenas um exemplo.
+
+## Complemento REV04 — opções A/B/C e estados de verificação
+
+- **A:** processo com Antigravity/Skills próprias e testes; não implica execução de software REA oficial.
+- **B:** investigação com `rea-agents` homologado (CLI ou servidor MCP), alvo autorizado, versão, parâmetros e evidência; configuração/doctor saudável não prova tool call.
+- **C:** integração justificada; observação B aceita por humano → requisito → teste RED/GREEN → código → gate → revisão independente → decisão humana.
+- As Skills auxiliares `rea-instrument` e `rea-integrate` são deste projeto, não são prova de instalação de `rea-agents`.
+- **CI aprovado ≠ G1–G7 globalmente aprovados.** O CI verifica compilação, pytest e dependências; não executa REA/MCP, Antigravity, navegador CDP, revisão por agente distinto ou aprovação humana.
+- Usar `category=Freios` para observar o RF-03 com resposta não vazia; o exemplo `capacetes` do guia não pertence ao catálogo didático.
+- Manter `NOT VERIFIED` para qualquer etapa sem evidência primária.
+
+Consultar [laboratórios REV04](docs/labs/REA_AB_C_REV04.md) e [auditoria REV04](docs/REV04_SYNC_AUDIT.md). Quando este conteúdo é visualizado a partir de `docs/REA_WORKFLOW.md`, os links são relativos à raiz do projeto.
