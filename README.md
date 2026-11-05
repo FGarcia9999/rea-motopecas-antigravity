@@ -1,8 +1,18 @@
-# Rota 2 Motopeças — REA + Antigravity + LLM
+# Rota 2 Motopeças — Engenharia de Software + IA + REA (REV04)
 
 ![Arquitetura REA](docs/arquitetura-rea.png)
 
 > **Status: MVP DIDÁTICO (não é uma loja comercial).** Projeto original baseado em observação de funcionalidades públicas de um site de referência. Não copia marca, textos, imagens, layout proprietário nem catálogo de terceiros. Não coleta nome, e-mail, CPF, endereço, telefone ou dados de pagamento. Não recebe pagamentos nem realiza entregas.
+
+## Percursos REV04 — A, B e C
+
+**A — workflow agêntico**: Antigravity + LLM + Rules + Skills próprias para requisitos, TDD e gates; não exige o pacote REA oficial. **B — REA oficial**: `rea-agents` executado por CLI ou MCP para inspeção técnica de alvo autorizado; não prova equivalência de implementação. **C — integração**: evidência real de B, aceita por decisão humana, alimenta requisitos, testes, código, gates e revisão independente em A. **São modos de trabalho, não três produtos.**
+
+Os materiais REV04 do docente contêm **85 slides** e um **guia de laboratório de 19 páginas**. O repositório ainda **não contém comprovação de execução real de Antigravity + REA/MCP**, nem da revisão independente. Configuração, `doctor`, tools disponíveis, chamada executada e evidência útil são níveis diferentes de prova.
+
+**Laboratório/segurança:** [roteiro A/B/C REV04](docs/labs/REA_AB_C_REV04.md) · [auditoria REV04](docs/REV04_SYNC_AUDIT.md) · [template de Evidence (não executado)](docs/evidence/rea-observation-template.md).
+
+**Categoria de laboratório RF-03:** use `Freios` (existente) e confira resultado não vazio. O exemplo `capacetes` no guia não corresponde ao catálogo Rota 2; HTTP 200 com lista vazia não valida o filtro.
 
 ## 1. Problema de engenharia
 
@@ -114,8 +124,7 @@ static/
   styles.css         # Design system original
   app.js             # Busca, filtros, carrinho e pedido
   img/*.svg          # Ilustrações originais
-tests/               # Testes automatizados da API
-tests/               # Testes de API e segurança inicial
+tests/               # Testes de API, CLI, RF-03 e contrato documental
 docs/                # Descoberta, riscos, workflow, rastreabilidade
 .agents/             # Rules e Skills do Antigravity
 .github/workflows/   # CI no GitHub Actions
@@ -134,23 +143,19 @@ scripts/gate.py      # Gate local reproduzível
 
 Consulte: [`docs/threat-model.md`](docs/threat-model.md), [OWASP ASVS 5.0](https://asvs.owasp.org/) e [LGPD](https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm).
 
-## 7. Publicação no GitHub `FGarcia9999` — repositório PÚBLICO NOVO
+## 7. GitHub — repositório existente
 
-O conector GitHub do ambiente atual possui acesso à conta **FGarcia9999**, mas não oferece ação de criação de repositório. O repositório ASF existente está **privado**, portanto não o utilize para satisfazer o requisito de publicação pública sem decisão explícita de mudar a visibilidade. **Nenhuma publicação foi realizada automaticamente nesta entrega.**
-
-Com [GitHub CLI](https://cli.github.com/) autenticado **como FGarcia9999**, execute na pasta do projeto:
+O repositório **já está publicado**, portanto não executar novamente `git init` ou `gh repo create`. Clonar, criar branch isolada e propor mudanças por PR após gates e revisão humana:
 
 ```powershell
-gh auth login
-git init -b main
-git add .
-git commit -m "feat: REA motorcycle parts shop with Antigravity skills and executable gates"
-gh repo create FGarcia9999/rea-motopecas-antigravity --public --source=. --remote=origin --push
+git clone https://github.com/FGarcia9999/rea-motopecas-antigravity.git
+cd rea-motopecas-antigravity
+git checkout -b lab/rf03-equipe
+# editar em branch, executar testes e revisar diff
+git diff --check
 ```
 
-Verifique: `gh repo view FGarcia9999/rea-motopecas-antigravity --web`. Antes de `git add`, confira `.gitignore`; não inclua o banco de dados, credenciais, arquivos privados ou material de terceiros.
-
-Se o repositório **já existir**, não execute `gh repo create`: configure `git remote add origin https://github.com/FGarcia9999/rea-motopecas-antigravity.git` e use o fluxo de branch/PR após verificar o conteúdo remoto.
+CI verde comprova somente os checks configurados; **não** equivale a autorização de publicação, equivalência funcional completa, sessão REA/MCP ou revisão independente.
 
 ## 8. Evidência e fidelidade
 

@@ -26,7 +26,13 @@ def main():
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(report,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
     print('GATE',report['status'],'-',OUT.relative_to(ROOT))
-    for c in checks:print(c['command'],'=>',c['exit_code'])
+    for c in checks:
+        print(c['command'],'=>',c['exit_code'])
+        if c['exit_code'] != 0:
+            print('--- FAIL STDOUT ---')
+            print(c['stdout'][-6000:])
+            print('--- FAIL STDERR ---')
+            print(c['stderr'][-4000:])
     return 0 if report['status']=='PASS' else 1
 
 if __name__=='__main__':sys.exit(main())
