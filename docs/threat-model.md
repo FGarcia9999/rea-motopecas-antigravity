@@ -14,6 +14,16 @@
 | Software de terceiros | Dependência vulnerável | CI inclui `pip-audit` | Auditoria depende da resolução de versões e internet |
 | Reutilização indevida | Marca/autorais/compatibilidade falsa | Identidade e SVG originais; dados sintéticos; aviso | Exige revisão humana antes de disponibilização comercial |
 
+## REV04 — ameaça adicional das integrações REA/MCP
+
+| Ativo/fronteira | Risco | Controle requerido | Evidência |
+|---|---|---|---|
+| Instalação REA/MCP | Typosquatting, mudança global de configuração | Fixar `rea-agents`, origem confiável e `setup --dry-run` aprovado | **NOT VERIFIED** |
+| Sessão Antigravity | Tool anunciada mas não autorizada; prompt injection de saída | Inventário, allowlist, menor privilégio, revisão humana | **NOT VERIFIED** |
+| Browser CDP | Leitura de perfis reais ou porta 9222 em rede | Perfil descartável, `127.0.0.1`, fechar sessão | **LAB PLANNED** |
+| HAR/logs/strings | Tokens, dados pessoais, segredos em arquivos ou contexto LLM | Minimização, redação, retenção, DLP e restrição de egress | **LAB PLANNED** |
+| Integração C | Aceitar inferência como fato ou ignorar divergência | Evidence real → RF → teste → código → gate → parecer separado → humano | **NOT EXECUTED** |
+
 **Critérios de liberação para uso real (não satisfeitos):** identidade comercial, homologação de compatibilidade, banco operacional/backup, autenticação, autorização, LGPD e base legal, HTTPS e headers de borda, rate limiting, antifraude, integração com PSP tokenizado, cálculo de frete, tributos, política de troca, CDC e conformidade consumerista.
 
 Referência: https://asvs.owasp.org/ (OWASP ASVS 5.0).
