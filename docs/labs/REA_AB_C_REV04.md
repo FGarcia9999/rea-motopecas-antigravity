@@ -29,7 +29,13 @@ Não altere a `main` durante a aula. Registre commit SHA, ambiente, hora, comand
 2. Executar `/rea-discovery`, solicitando matriz observação/hipótese/requisito/teste, sem alterar código.
 3. Em branch própria, escolher melhoria pequena em RF-03. Executar **teste RED antes de implementação**, reter log com saída não zero; então GREEN e gate.
 4. Em nova conversa/revisor, `/rea-verify` deve testar o contrato sem aceitar o relato do implementador como prova. Guardar parecer independente.
-5. Conferir `tests/test_rf03_contract.py`; categorias locais incluem **Freios** e **Filtros**, mas **não** `capacetes`. `GET /api/products?category=capacetes` pode retornar HTTP 200 com lista vazia; isso **não** comprova filtro funcional.
+5. Verificar primeiro o contrato REST local, com resultado obrigatório não vazio para uma categoria válida:
+
+```powershell
+curl.exe "http://127.0.0.1:8000/api/products?category=Freios"
+```
+
+   Conferir `tests/test_rf03_contract.py`; categorias locais incluem **Freios** e **Filtros**, mas **não** `capacetes`. `GET /api/products?category=capacetes` pode retornar HTTP 200 com lista vazia; isso **não** comprova filtro funcional.
 
 ## B — instalação homologada do software REA
 
