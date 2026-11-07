@@ -182,3 +182,16 @@ CI verde comprova somente os checks configurados; **não** equivale a autorizaç
 - [Mobile — versão responsiva](docs/evidence/mobile-preview.png)
 
 As capturas usam dados de API simulados no Chromium; os testes transacionais do servidor foram conduzidos separadamente. Veja [proveniência das capturas](docs/evidence/preview-notes.md). Para reproduzir, instale Playwright e um Chromium compatível no seu ambiente.
+
+
+## Evolução REV05 — Banco de Dados (Opção A)
+
+A documentação REV05 da aula (slides 86–95 e Guia Didático, Anexo A) é implementada **de forma aditiva e opt-in**: SQLite com `schema_migrations` e `inventory_movements`, lançamentos `SALE` e `ADJUSTMENT` na mesma transação da atualização de estoque, conciliação, migração/backup/restauração em `lab_*.db`, e testes de rollback, replay e concorrência.
+
+- **Guia de execução**: [docs/DB_REV05_IMPLEMENTATION.md](docs/DB_REV05_IMPLEMENTATION.md)
+- **Decisão arquitetural**: [ADR-001](docs/adr/ADR-001-SQLite-Inventory-Ledger-REV05.md)
+- **Skill de banco da Opção A**: [.agents/skills/rea-db/SKILL.md](.agents/skills/rea-db/SKILL.md)
+- **Testes**: [tests/test_db_rev05.py](tests/test_db_rev05.py)
+- **Materiais fornecidos e integridade**: [docs/materials/REV05_SOURCES.sha256](docs/materials/REV05_SOURCES.sha256)
+
+Não migrar bancos operacionais nem promover G7 sem aprovação humana. O software REA oficial e o Antigravity **não foram executados** para produzir estes artefatos.

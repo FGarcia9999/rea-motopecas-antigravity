@@ -14,7 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .catalog import BIKES
-from .db import connect, initialize
+from .db import connect, initialize, inventory_ledger_enabled, append_inventory_movement
 
 BASE = Path(__file__).resolve().parent.parent
 STATIC = BASE / "static"
@@ -135,6 +135,7 @@ def make_app() -> FastAPI:
                     return {"order_id": prior["id"], "total_cents": prior["total_cents"],
                             "status": "SIMULADO", "payment_processed": False, "replayed": True}
 
+                ledger = inventory_ledger_enabled(db)  # inside transaction; read-only on legacy DB
                 total = 0
                 lines = []
                 for product_id, quantity in normalized:
@@ -154,6 +155,12 @@ def make_app() -> FastAPI:
                         raise HTTPException(409, "Estoque alterado durante o pedido")
                     db.execute("INSERT INTO order_items(order_id,product_id,quantity,unit_price_cents) VALUES (?,?,?,?)",
                                (order_id, pid, qty, cents))
+                    if ledger:
+                        append_inventory_movement(
+                            db, product_id=pid, delta_qty=-qty,
+                            movement_type="SALE", order_id=order_id,
+                            reason="pedido demonstrativo confirmado",
+                        )
                 db.execute("COMMIT")
                 return {"order_id": order_id, "total_cents": total, "status": "SIMULADO",
                         "payment_processed": False, "replayed": False}
