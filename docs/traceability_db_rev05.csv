@@ -1,0 +1,11 @@
+ID,Requisito,Implementacao,Teste,Gate,Estado
+DB-01,"Migration 001 explícita/idempotente",scripts/lab_db_extension.py,test_migration_is_idempotent_and_opening_balances,G-DB1,TESTED_LOCAL
+DB-02,"Saldo conciliado desde T0",app/db.py,test_manual_tampering_is_detected,G-DB1,TESTED_LOCAL
+DB-03,"FK e CHECK",sql/schema_proposto_001.sql,test_migration_is_idempotent_and_opening_balances,G-DB2,TESTED_LOCAL
+DB-04,"Venda e SALE atômicos",app/main.py,test_sale_debits_and_records_in_same_transaction;test_failed_ledger_insert_rolls_back_order_and_stock,G-DB3,TESTED_LOCAL
+DB-05,"Replay idempotente sem evento duplo",app/main.py,test_idempotency_replay_does_not_duplicate_sale,G-DB4,TESTED_LOCAL
+DB-06,"CLI local grava ADJUSTMENT",app/manage.py,test_cli_stock_adjustment_and_reason;test_cli_invalid_stock_and_reason_do_not_write,G-DB5,TESTED_LOCAL
+DB-07,"Backup e restauração consistentes",scripts/lab_db_extension.py,test_online_backup_restore_integrity,G-DB2,TESTED_LOCAL
+DB-08,"Concorrência não produz oversell",app/main.py,test_concurrent_orders_never_oversell,G-DB3,TESTED_LOCAL
+DB-09,"Migração só em base lab",scripts/lab_db_extension.py,test_lab_only_path_validation,G-DB5,TESTED_LOCAL
+DB-10,"Revisão independente e decisão humana",docs/DB_REV05_IMPLEMENTATION.md,manual_review,G7,NOT_EXECUTED
