@@ -77,3 +77,58 @@ def initialize() -> None:
             except Exception:
                 db.execute("ROLLBACK")
                 raise
+
+
+MIGRATION_INVENTORY = "001_inventory_ledger"
+
+
+def inventory_ledger_enabled(db: sqlite3.Connection) -> bool:
+    """Return True only when the explicit inventory migration was committed.
+
+    A partially-created ledger must fail closed instead of silently omitting
+    movements. Existing four-table databases remain backward compatible.
+    """
+    tables = {r[0] for r in db.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' "
+        "AND name IN ('schema_migrations','inventory_movements')"
+    ).fetchall()}
+    if not tables:
+        return False
+    if tables != {"schema_migrations", "inventory_movements"}:
+        raise RuntimeError("Migração incompleta: tabelas de ledger inconsistentes")
+    if not db.execute("SELECT 1 FROM schema_migrations WHERE version=?", (MIGRATION_INVENTORY,)).fetchone():
+        raise RuntimeError("Migração não registrada: movimentação de estoque bloqueada")
+    return True
+
+
+def append_inventory_movement(
+    db: sqlite3.Connection, *, product_id: int, delta_qty: int,
+    movement_type: str, reason: str, order_id: str | None = None,
+) -> None:
+    """Append within caller's BEGIN IMMEDIATE transaction; never commits."""
+    if delta_qty == 0:
+        raise ValueError("Movimento com delta zero é proibido")
+    if movement_type not in {"OPENING", "SALE", "ADJUSTMENT", "RETURN"}:
+        raise ValueError("Tipo de movimento não permitido")
+    if movement_type == "SALE" and not order_id:
+        raise ValueError("Venda precisa de order_id")
+    if not reason or len(reason.strip()) < 5:
+        raise ValueError("Motivo do movimento é obrigatório")
+    db.execute(
+        "INSERT INTO inventory_movements(product_id,delta_qty,movement_type,order_id,reason) "
+        "VALUES (?,?,?,?,?)",
+        (product_id, delta_qty, movement_type, order_id, reason.strip()),
+    )
+
+
+def reconcile_inventory(db: sqlite3.Connection) -> list[dict]:
+    """Read-only balance reconciliation; requires migration to be present."""
+    if not inventory_ledger_enabled(db):
+        raise RuntimeError("Livro-razão ainda não foi migrado")
+    return [dict(row) for row in db.execute("""
+        SELECT p.sku, p.stock, COALESCE(SUM(m.delta_qty), 0) AS balance
+          FROM products p LEFT JOIN inventory_movements m ON m.product_id = p.id
+         GROUP BY p.id
+        HAVING p.stock <> COALESCE(SUM(m.delta_qty),0)
+        ORDER BY p.id
+    """).fetchall()]
