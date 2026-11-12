@@ -195,3 +195,8 @@ A documentação REV05 da aula (slides 86–95 e Guia Didático, Anexo A) é imp
 - **Materiais fornecidos e integridade**: [docs/materials/REV05_SOURCES.sha256](docs/materials/REV05_SOURCES.sha256)
 
 Não migrar bancos operacionais nem promover G7 sem aprovação humana. O software REA oficial e o Antigravity **não foram executados** para produzir estes artefatos.
+
+
+## Pesquisa científica REA (diretriz em revisão)
+
+A investigação para *Empirical Software Engineering* usa desenho fatorial 2×2 para separar workflow de engenharia (W) e observação REA/MCP (I). O estimando primário planejado é T3−T1; **não há resultados comparativos**. Os materiais públicos do método estão em [docs/research/RESEARCH_DIRECTIVE_v1.0.md](docs/research/RESEARCH_DIRECTIVE_v1.0.md), [protocolo v1.1](docs/research/EXPERIMENTAL_PROTOCOL_v1.1.md) e [decisões de revisão](docs/research/DECISION_REGISTER_2026-11-11.md). Ground truth, testes ocultos e traces não revisados não devem ser publicados neste repositório.
