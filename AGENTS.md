@@ -19,3 +19,12 @@ Workflow: discovery -> specification -> TDD RED -> TDD GREEN -> refactor -> comp
 - Nunca incluir os testes ocultos, referência-fonte, ground truth ou dados não autorizados no workspace do agente nem neste repositório público.
 - RQ5 (proveniência) não é causal sem ablação específica. A comparação confirmatória planejada é T3−T1, com resultados ainda inexistentes.
 - Não ajustar limiares de no-go após observar resultados, não excluir timeouts silenciosamente, não confundir sucesso CI com revisão independente ou aprovação humana.
+
+
+## REA scientific convergence — 2026-11-15
+- For research changes, read `docs/research/RESEARCH_DIRECTIVE_v1.1.md` and `docs/research/EXPERIMENTAL_PROTOCOL_v1.2.md` before running any agent workflow.
+- Treat observation coverage, evidence utilization and external fidelity as separate constructs. Never report post-treatment evidence use as proof of causal mediation.
+- Interpret T3−T1 as the total effect of the **defined instrumentation treatment** within W, not the isolated MCP wire protocol.
+- ProgramDistill is a **preprint**; its 59.2% observation-failure share is among 977 analyzed failed behaviors, not all benchmark tasks.
+- Do not publish reference source, ground truth, hidden test suites or non-redacted traces in the public GitHub repository.
+- WP1/WP2/WP3, independent oracles and pilot are still pending; do not fill manuscript Results from CI.
