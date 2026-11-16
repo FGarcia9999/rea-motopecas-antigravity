@@ -58,7 +58,7 @@ def test_source_symlink_rejected(handoff):
 
 
 @pytest.mark.parametrize("name", [
-    "src/.env", "web/../../secret.json", "src/forbidden.sh",
+    "src/.env", "web/folder/.hidden.js", "src/forbidden.sh",
     "assets/password.txt", "src/__pycache__/x.py", "src/not_code.exe",
 ])
 def test_bad_path_or_suffix_rejected(handoff, name):

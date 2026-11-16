@@ -48,7 +48,7 @@ def _name(name: str) -> str:
     if not name.isascii() or any(ord(x) < 32 or ord(x) == 127 for x in name):
         raise HandoffError("Only simple ASCII paths permitted")
     p = PurePosixPath(name)
-    if p.is_absolute() or len(p.parts) < 2 or any(x in (".", "..") or x.startswith(".") for x in p.parts):
+    if p.is_absolute() or len(p.parts) < 2 or any(x in (".", "..") or (x.startswith(".") or x == "__pycache__") for x in p.parts):
         raise HandoffError("Traversal/dot paths not permitted")
     if p.parts[0] not in ROOTS or p.suffix.lower() not in EXT[p.parts[0]]:
         raise HandoffError("Unexpected file type/path in candidate transfer")
