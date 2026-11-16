@@ -65,9 +65,9 @@ jobs:
           docker run --rm --network m00-test-net \
             --user 65534:65534 --read-only --cap-drop ALL \
             --security-opt no-new-privileges --pids-limit 32 --memory 128m \
-            --mount "type=bind,src=$PWD/research/custody/preflight.py,dst=/tool/preflight.py,readonly" \
+            --mount "type=bind,src=$PWD/research/custody/preflight.py,dst=/opt/research/custody/preflight.py,readonly" \
             --mount "type=bind,src=$RUNNER_TEMP/rea-m00-synthetic/rea_m00_synthetic_canary.txt,dst=/protected/rea_m00_synthetic_canary.txt,readonly" \
-            python:3.11-slim python /tool/preflight.py \
+            python:3.11-slim python /opt/research/custody/preflight.py \
             --canary-file /protected/rea_m00_synthetic_canary.txt \
             --runtime-url http://m00-reference:8000/ \
             --expected-uid 65534 > "$RUNNER_TEMP/rea-m00-public/preflight.json"
