@@ -66,7 +66,7 @@ def test_valid_file_current_user_access_is_security_failure(tmp_path, monkeypatc
 
 def test_explicit_denial_in_current_agent_identity_passes_one_scope_only(tmp_path, monkeypatch):
     canary = tmp_path / preflight.CANARY_NAME
-    canary.write_text("SYNTHETIC")
+    canary.write_text("PUBLIC_CANARY_PAYLOAD_ABC123")
     def deny(_):
         raise PermissionError("A fabricated test denial, not an actual agent account")
     monkeypatch.setattr(preflight, "_read_one_byte", deny)
@@ -79,7 +79,7 @@ def test_explicit_denial_in_current_agent_identity_passes_one_scope_only(tmp_pat
     assert r["all_network_mcp_and_connector_scopes_checked"] is False
     assert r["scientific_P3"] == "HOLD"
     assert str(tmp_path) not in json.dumps(r)
-    assert "SYNTHETIC" not in json.dumps(r)
+    assert "PUBLIC_CANARY_PAYLOAD_ABC123" not in json.dumps(r)
 
 
 def test_not_found_is_not_denied(tmp_path, monkeypatch):
