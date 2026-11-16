@@ -140,6 +140,41 @@ jobs:
             'scientific_P2':'NOT_FROZEN_PENDING_INDEPENDENT_REVIEW',
           },indent=2)+'\n')
           PY
+      - name: Trigger category filter while REA passively observes
+        run: |
+          set -euo pipefail
+          python -m pip install websocket-client==1.9.0
+          npx -y "rea-agents@$REA_VERSION" inspect-web-page 'http://127.0.0.1:9222' "$(cat "$RUNNER_TEMP/rea-wp2-smoke/target-id.txt")" --observation-ms 10000 --json > "$RUNNER_TEMP/rea-wp2-smoke/filter-inspect.json" &
+          REA_PID=$!
+          sleep 3
+          python research/cdp_demo_driver.py --output "$RUNNER_TEMP/rea-wp2-smoke/filter-driver.json"
+          wait "$REA_PID"
+          python - <<'PY'
+          import hashlib,json,os,pathlib
+          base=pathlib.Path(os.environ['RUNNER_TEMP'])/'rea-wp2-smoke'
+          p=base/'filter-inspect.json'
+          data=json.loads(p.read_text())
+          if data.get('operation')!='inspect_web_page' or data.get('provider',{}).get('id')!='rea-cdp-browser':
+            raise SystemExit('NOT_A_REA_INSPECT_RESULT')
+          network=data.get('normalized_result',{}).get('network',{}).get('requests',[])
+          matching=[r for r in network if '/api/products' in json.dumps(r)]
+          print('REA_FILTER_OBSERVATION_NETWORK_REQUESTS='+str(len(network)))
+          print('REA_FILTER_OBSERVATION_PRODUCTS_REQUESTS='+str(len(matching)))
+          print('REA_FILTER_OBSERVATION_SHA256='+hashlib.sha256(p.read_bytes()).hexdigest())
+          if not matching:
+            raise SystemExit('NO_PRODUCTS_REQUEST_OBSERVED_AFTER_CONTROLLED_CLICK')
+          (base/'filter-status.json').write_text(json.dumps({
+            'status':'REAL_REA_CAPTURE_OF_SYNTHETIC_LOCAL_FILTER_INTERACTION',
+            'rea_evidence_id':data.get('evidence_id'),
+            'rea_provider':data.get('provider',{}).get('id'),
+            'observed_requests':len(network),
+            'product_requests':len(matching),
+            'rea_raw_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),
+            'stimulus_driver':'research/cdp_demo_driver.py (not REA)',
+            'scientific_P2':'NOT_FROZEN_PENDING_INDEPENDENT_REVIEW',
+            'source_hidden_comparative_experiment':'NOT_EXECUTED'
+          },indent=2)+'\n')
+          PY
       - name: Upload synthetic local-only evidence for independent review
         if: always()
         uses: actions/upload-artifact@v4
