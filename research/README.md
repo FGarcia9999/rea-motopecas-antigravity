@@ -80,3 +80,8 @@ Antes de qualquer push ao repositório público, executar `python scripts/check_
 ### Pre-pilot planning v0.1 (2026-11-16)
 
 The [execution plan](../docs/research/PRE_PILOT_EXECUTION_PLAN_v0.1_2026-11-16.md), [custody SOP](../docs/research/EVALUATOR_CUSTODY_SOP_v0.1_2026-11-16.md), [pre-registration decisions](../docs/research/PREREGISTRATION_DECISIONS_v0.1_2026-11-16.md), and [machine-readable milestones](planning/README.md) establish dependencies and acceptance evidence for the **unstarted** WP4. They add no private oracle or reference sources, do not approve the nine no-go gates, and do not supersede Protocol v1.2 or Manuscript M1 v0.4.
+
+
+### M00 — Custody and explicit-denial preflight (2026-11-16)
+
+A [public DRAFT role matrix and single-canary access probe](custody/README.md) are implemented with a synthetic, scoped Linux container smoke: accessible authorized runtime and protected canary `DENIED`. See [M00 engineering checkpoint](../docs/research/M00_CUSTODY_ACCESS_CHECKPOINT_2026-11-16.md). This does **not** constitute a real Antigravity/MCP agent identity or an approval of P1–P4. Actual private assets, actors, and account permissions remain to be arranged by independent custodians.

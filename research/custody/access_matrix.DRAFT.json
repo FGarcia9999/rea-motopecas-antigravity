@@ -1,0 +1,144 @@
+{
+  "schema_version": "1.0",
+  "status": "DRAFT_HOLD",
+  "public_matrix_only": true,
+  "roles_actual_identities_assigned": false,
+  "human_approval_received": false,
+  "scientific_p3_approved": false,
+  "pilot_authorized": false,
+  "resources": [
+    {
+      "id": "public_method_repo",
+      "classification": "PUBLIC"
+    },
+    {
+      "id": "authorized_runtime_ui",
+      "classification": "AUTHORIZED_RUNTIME"
+    },
+    {
+      "id": "agent_workspace",
+      "classification": "AGENT_ISOLATED"
+    },
+    {
+      "id": "agent_tool_catalog",
+      "classification": "TREATMENT_SCOPED"
+    },
+    {
+      "id": "private_reference_source",
+      "classification": "EVALUATOR_ONLY"
+    },
+    {
+      "id": "private_hidden_oracles",
+      "classification": "EVALUATOR_ONLY"
+    },
+    {
+      "id": "private_ground_truth",
+      "classification": "EVALUATOR_ONLY"
+    },
+    {
+      "id": "private_evaluation_reports",
+      "classification": "EVALUATOR_ONLY"
+    },
+    {
+      "id": "external_signed_approvals",
+      "classification": "INDEPENDENT_REVIEW"
+    }
+  ],
+  "principals": [
+    {
+      "role": "implementing_agent",
+      "actual_identity_assigned": false,
+      "allow": [
+        "public_method_repo",
+        "authorized_runtime_ui",
+        "agent_workspace",
+        "agent_tool_catalog"
+      ],
+      "deny": [
+        "private_reference_source",
+        "private_hidden_oracles",
+        "private_ground_truth",
+        "private_evaluation_reports",
+        "external_signed_approvals"
+      ]
+    },
+    {
+      "role": "reference_custodian",
+      "actual_identity_assigned": false,
+      "allow": [
+        "public_method_repo",
+        "authorized_runtime_ui",
+        "private_reference_source"
+      ],
+      "deny": [
+        "agent_workspace",
+        "agent_tool_catalog",
+        "private_hidden_oracles",
+        "private_ground_truth",
+        "private_evaluation_reports",
+        "external_signed_approvals"
+      ]
+    },
+    {
+      "role": "oracle_evaluator",
+      "actual_identity_assigned": false,
+      "allow": [
+        "public_method_repo",
+        "authorized_runtime_ui",
+        "private_hidden_oracles",
+        "private_ground_truth",
+        "private_evaluation_reports"
+      ],
+      "deny": [
+        "agent_workspace",
+        "agent_tool_catalog",
+        "private_reference_source",
+        "external_signed_approvals"
+      ]
+    },
+    {
+      "role": "independent_auditor",
+      "actual_identity_assigned": false,
+      "allow": [
+        "public_method_repo",
+        "external_signed_approvals"
+      ],
+      "deny": [
+        "agent_workspace",
+        "agent_tool_catalog",
+        "private_reference_source",
+        "private_hidden_oracles",
+        "private_ground_truth",
+        "private_evaluation_reports",
+        "authorized_runtime_ui"
+      ]
+    },
+    {
+      "role": "experiment_operator",
+      "actual_identity_assigned": false,
+      "allow": [
+        "public_method_repo",
+        "authorized_runtime_ui",
+        "agent_workspace",
+        "agent_tool_catalog"
+      ],
+      "deny": [
+        "private_reference_source",
+        "private_hidden_oracles",
+        "private_ground_truth",
+        "private_evaluation_reports",
+        "external_signed_approvals"
+      ]
+    }
+  ],
+  "external_evidence_required": [
+    "effective_real_agent_identity",
+    "actual_permission_denials_filesystem_network_mcp_github",
+    "reference_owner_approval",
+    "independent_oracle_evaluator_review",
+    "reviewer_signed_no_go_thresholds",
+    "separate_credentials_and_credential_revocation_plan"
+  ],
+  "materialized_private_assets_in_this_file": false,
+  "note": "Role policy is a proposal, not real authorization. Ownership/approval requires independent evidence outside public repo."
+}
