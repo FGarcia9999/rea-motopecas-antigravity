@@ -19,6 +19,8 @@ jobs:
       REA_BROWSER_OBSERVE_ENABLED: 'true'
       REA_BROWSER_CDP_ENDPOINTS_JSON: '["http://127.0.0.1:9222"]'
       REA_BROWSER_ALLOWED_ORIGINS_JSON: '["http://127.0.0.1:8000"]'
+      # Exact release. rea-agents@6.9.0 CLI rejects --approved (unreleased/fork-specific flag).
+      # Browser scope is still fail-closed through the three REA_BROWSER_* variables above.
       REA_VERSION: '6.9.0'
     steps:
       - uses: actions/checkout@v4
@@ -69,7 +71,7 @@ jobs:
           set -euo pipefail
           npm view "rea-agents@$REA_VERSION" dist.integrity --json > "$RUNNER_TEMP/rea-wp2-smoke/npm-package-integrity.json"
           npx -y "rea-agents@$REA_VERSION" --version > "$RUNNER_TEMP/rea-wp2-smoke/rea-version.txt"
-          npx -y "rea-agents@$REA_VERSION" list-browser-targets 'http://127.0.0.1:9222' --approved --json > "$RUNNER_TEMP/rea-wp2-smoke/targets.json"
+          npx -y "rea-agents@$REA_VERSION" list-browser-targets 'http://127.0.0.1:9222' --json > "$RUNNER_TEMP/rea-wp2-smoke/targets.json"
           python - <<'PY'
           import json,os,hashlib,pathlib
           base=pathlib.Path(os.environ['RUNNER_TEMP'])/'rea-wp2-smoke'
