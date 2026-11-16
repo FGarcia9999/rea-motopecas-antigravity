@@ -21,12 +21,7 @@ from scripts.check_research_public_boundary import content_rule, path_rule, scan
     "research/tmp.tar",
 ])
 def test_reject_sensitive_research_paths(path):
-    if path == "research/private/file.txt":
-        # a generic 'private' folder is intentionally NOT blocked by this
-        # narrow list; use the reserved evaluator-specific names instead.
-        assert path_rule(path) is None
-    else:
-        assert path_rule(path) is not None
+    assert path_rule(path) is not None
 
 
 @pytest.mark.parametrize("path", [

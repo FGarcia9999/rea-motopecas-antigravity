@@ -17,7 +17,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 FORBIDDEN_DIRS = {
-    "private_reference", "private-reference", "private_oracles",
+    "private", "private_reference", "private-reference", "private_oracles",
     "private-oracles", "hidden_oracles", "hidden-oracles",
     "hidden_tests", "hidden-tests", "evaluator_private",
     "evaluator-private", "evaluator_only", "evaluator-only",
@@ -115,7 +115,7 @@ def _tracked_files() -> list[tuple[str, bytes]]:
             continue
         location = ROOT / rel
         if location.is_symlink() or not location.is_file():
-            items.append((rel, b"-----BEGIN PRIVATE KEY-----"))
+            items.append((rel, b"-----BEGIN " + b"PRIVATE KEY-----"))
             continue
         if location.stat().st_size > MAX_SCAN_BYTES and location.suffix.lower() in TEXT_EXT:
             # Don't read giant logs/JSON; content_rule blocks these.
