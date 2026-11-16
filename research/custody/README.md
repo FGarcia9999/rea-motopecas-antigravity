@@ -50,4 +50,4 @@ A versão CI executa a mesma verificação contra o hostname `m00-reference` da 
 4. Testar controles **efetivos** com identidades reais, inclusive ferramentas GitHub/MCP, filesystem, rede, browser e credenciais.
 5. Registrar aprovações, recusas e hashes privados sob custodiante; não usar CI público como repositório de evidências confidenciais.
 
-O relatório <Link> não é necessário aqui: [checkpoint M00](../../docs/research/M00_CUSTODY_ACCESS_CHECKPOINT_2026-11-16.md) e [SOP de custódia](../../docs/research/EVALUATOR_CUSTODY_SOP_v0.1_2026-11-16.md) trazem a classificação e as decisões pendentes.
+Consulte também o [checkpoint M00](../../docs/research/M00_CUSTODY_ACCESS_CHECKPOINT_2026-11-16.md) e [SOP de custódia](../../docs/research/EVALUATOR_CUSTODY_SOP_v0.1_2026-11-16.md) trazem a classificação e as decisões pendentes.
