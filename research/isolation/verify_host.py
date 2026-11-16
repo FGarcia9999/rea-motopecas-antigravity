@@ -9,13 +9,23 @@ import json
 from pathlib import Path
 
 
-def audit(agent: dict, reference: dict, evaluator: dict, probe: dict) -> dict:
+def audit(agent: dict, reference: dict, evaluator: dict, probe: dict,
+          agent_network: dict, evaluator_network: dict) -> dict:
     a = agent["HostConfig"]
     mounts = {m["Destination"] for m in agent["Mounts"]}
     agent_nets = set(agent["NetworkSettings"]["Networks"])
     ref_nets = set(reference["NetworkSettings"]["Networks"])
     evaluator_nets = set(evaluator["NetworkSettings"]["Networks"])
     checks = {
+        "both_bridges_internal": (agent_network["Internal"] is True
+                                  and evaluator_network["Internal"] is True
+                                  and agent_network["Driver"] == "bridge"
+                                  and evaluator_network["Driver"] == "bridge"),
+        "agent_only_on_agent_net": agent_nets == {agent_network["Name"]},
+        "evaluator_only_on_evaluator_net": evaluator_nets == {evaluator_network["Name"]},
+        "reference_on_both_networks": ref_nets == agent_nets | evaluator_nets,
+        "all_agent_bind_mounts_read_only": all(m["RW"] is False for m in agent["Mounts"]),
+        "agent_nonzero_resource_caps": a["PidsLimit"] > 0 and a["Memory"] > 0,
         "agent_not_privileged": not a["Privileged"],
         "agent_rootfs_readonly": a["ReadonlyRootfs"] is True,
         "agent_dropped_all_capabilities": "ALL" in a["CapDrop"],
@@ -43,12 +53,12 @@ def audit(agent: dict, reference: dict, evaluator: dict, probe: dict) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    for name in ("agent", "reference", "evaluator", "probe"):
+    for name in ("agent", "reference", "evaluator", "probe", "agent_network", "evaluator_network"):
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
     args = parser.parse_args()
     data = {k: json.loads(getattr(args, k).read_text()) for k in
-            ("agent", "reference", "evaluator", "probe")}
+            ("agent", "reference", "evaluator", "probe", "agent_network", "evaluator_network")}
     result = audit(**data)
     args.report.write_text(json.dumps(result, indent=2) + "\n")
     print(json.dumps(result, sort_keys=True))
