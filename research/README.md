@@ -60,3 +60,8 @@ A GitHub-hosted disposable Ubuntu runner successfully executed official `rea-age
 ### P3 — Synthetic container isolation evidence (2026-11-16)
 
 A separately restricted agent process could access only the synthetic Rota 2 API while probes for the evaluator, protected canary and source paths were blocked. This is a **scripted environment test**, not an approved real-agent P3 gate or hidden benchmark. See [engineering evidence](../docs/research/P3_ISOLATION_CHECKPOINT_2026-11-16.md) and [implementation](isolation/README.md).
+
+
+### WP3/P4 — Candidate handoff and alternative correctness control (2026-11-16)
+
+[Content-addressed transfer](handoff/README.md) allows an agent output artifact to be checked and imported into an evaluator-controlled inbox **without running code**. A public smoke uses Rota 2, a deliberately faulty category mutant and an alternative API that satisfies the same four public cases. This is **not** genuine hidden-oracle validation or scientific gate approval. [Evidence and limitations](../docs/research/P4_EVALUATOR_CHECKPOINT_2026-11-16.md).
