@@ -64,6 +64,7 @@ def assess(root: Path = ROOT) -> dict:
             "criteria_defined": criterion_count,
             "criteria_without_approved_numeric_owner_threshold": incomplete,
             "rea_cli_technical_smoke_available": (root / "research/WP2_CLI_SMOKE_EVIDENCE_2026-11-16.md").is_file(),
+            "rea_mcp_stdio_two_tools_technical_smoke_available": (root / "docs/research/M02_REAL_MCP_STDIO_CHECKPOINT_2026-11-16.md").is_file(),
             "public_oracle_engine_available": (root / "research/oracles/blackbox.py").is_file(),
             "public_synthetic_isolation_smoke_available": (root / "research/isolation/agent_probe.py").is_file(),
             "benchmark_private_intake_contract_available": (root / "research/benchmark/intake.py").is_file(),

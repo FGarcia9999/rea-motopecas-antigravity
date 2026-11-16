@@ -82,3 +82,8 @@ Hashing proves only byte integrity. A documented, witnessed call needs exact REA
 5. Approve numeric no-go thresholds and named owners before collecting any pilot outcomes.
 
 **Evidence now available:** actual **REA CLI** `list-browser-targets` and `inspect-web-page` calls were successfully executed in an isolated Ubuntu GitHub Actions runner, with a controlled filter click on the Rota 2 local target and externally verifiable logs/manifest. See [WP2 evidence report](WP2_CLI_SMOKE_EVIDENCE_2026-11-16.md). **Still NOT VERIFIED:** the Windows/Antigravity MCP client registration, independent review, a source-hidden reconstruction trial, the protocol's P2 research-team freeze, and all comparative T0–T3 results.
+
+
+## Atualização 16/11/2026 — tool calls MCP verdadeiramente executados no Linux
+
+O [novo checkpoint M02](../docs/research/M02_REAL_MCP_STDIO_CHECKPOINT_2026-11-16.md) comprova, em [CI run 43968147964](https://github.com/FGarcia9999/rea-motopecas-antigravity/actions/runs/43968147964), uma sessão **real** do servidor oficial rea-agents@6.9.0 via JSON-RPC stdio com initialize, tools/list e tools/call de list_browser_targets e inspect_web_page no alvo local autorizado. Não é mais correto descrever a pesquisa como possuidora somente de prova de CLI. O passo de **homologação específica do cliente Antigravity/Windows** continua pendente. Leia o [runbook específico](M02_ANTIGRAVITY_HOMOLOGATION_RUNBOOK.md); manter os estados INSTALL/CONFIGURE/VISIBLE/EXECUTED/DECISION_USEFUL distintos, sem substituir um pela evidência do outro.

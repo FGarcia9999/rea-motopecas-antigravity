@@ -28,6 +28,7 @@ def test_current_repository_not_automatically_authorized():
     assert report["pilot_execution_permitted_by_this_tool"] is False
     assert report["observed_evidence"]["private_evaluator_assets_examined"] is False
     assert report["observed_evidence"]["external_scientific_approvals_verified"] is False
+    assert report["observed_evidence"]["rea_mcp_stdio_two_tools_technical_smoke_available"] is True
     assert report["observed_evidence"]["criteria_defined"] == 9
     assert report["observed_evidence"]["criteria_without_approved_numeric_owner_threshold"] == 9
     assert {x["gate"] for x in report["blockers"]} >= {"P1", "P2", "P3", "P4"}

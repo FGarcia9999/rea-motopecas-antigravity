@@ -85,3 +85,8 @@ The [execution plan](../docs/research/PRE_PILOT_EXECUTION_PLAN_v0.1_2026-11-16.m
 ### M00 — Custody and explicit-denial preflight (2026-11-16)
 
 A [public DRAFT role matrix and single-canary access probe](custody/README.md) are implemented with a synthetic, scoped Linux container smoke: accessible authorized runtime and protected canary `DENIED`. See [M00 engineering checkpoint](../docs/research/M00_CUSTODY_ACCESS_CHECKPOINT_2026-11-16.md). This does **not** constitute a real Antigravity/MCP agent identity or an approval of P1–P4. Actual private assets, actors, and account permissions remain to be arranged by independent custodians.
+
+
+### M02 — execução MCP stdio real, cliente Antigravity pendente (16/11/2026)
+
+O [checkpoint de execução MCP](../docs/research/M02_REAL_MCP_STDIO_CHECKPOINT_2026-11-16.md) e a implementação testada em [research/mcp_stdio_smoke.py](mcp_stdio_smoke.py) documentam **dois tools/call reais** do REA oficial no ambiente descartável. O [procedimento Antigravity](M02_ANTIGRAVITY_HOMOLOGATION_RUNBOOK.md) permanece a ser executado no cliente Windows, com prova independente. P2 científico permanece HOLD, T0–T3 não iniciados.

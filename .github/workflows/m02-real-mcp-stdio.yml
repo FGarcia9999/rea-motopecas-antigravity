@@ -1,0 +1,113 @@
+name: REA M02 — real pinned MCP stdio browser tools (NOT Antigravity)
+
+on:
+  push:
+    branches:
+      - research/m02-real-mcp-stdio-smoke-2026-11-16
+    paths:
+      - .github/workflows/m02-real-mcp-stdio.yml
+      - research/mcp_stdio_smoke.py
+      - tests/test_research_mcp_stdio.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-mcp-local-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    env:
+      REA_VERSION: '6.9.0'
+      REA_BROWSER_OBSERVE_ENABLED: 'true'
+      REA_BROWSER_CDP_ENDPOINTS_JSON: '["http://127.0.0.1:9222"]'
+      REA_BROWSER_ALLOWED_ORIGINS_JSON: '["http://127.0.0.1:8000"]'
+      REA_MCP_TOOL_FAMILIES: 'browser'
+      REA_MCP_OUTPUT_SCHEMA_PROFILE: 'off'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Test JSON-RPC contracts offline
+        run: |
+          python -m pip install -r requirements-dev.txt
+          python -m pytest -q tests/test_research_mcp_stdio.py
+      - name: Verify exact installed runtime and npm package identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/rea-m02-private" "$RUNNER_TEMP/rea-m02-public"
+          node --version
+          npm --version
+          npx -y "rea-agents@$REA_VERSION" --version
+          npm view "rea-agents@$REA_VERSION" dist.integrity --json > "$RUNNER_TEMP/rea-m02-private/npm-integrity.json"
+          python - <<'PY'
+          import os,pathlib,json
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"rea-m02-private/npm-integrity.json"
+          v=json.loads(p.read_text())
+          assert isinstance(v,str) and v.startswith("sha512-")
+          print("REA_NPM_INTEGRITY_FETCHED=true")
+          PY
+      - name: Start own disposable FastAPI Rota 2 and CDP Chrome
+        shell: bash
+        run: |
+          set -euo pipefail
+          export MOTO_DB_PATH="$RUNNER_TEMP/m02-disposable.db"
+          python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 \
+            > "$RUNNER_TEMP/rea-m02-private/uvicorn.log" 2>&1 &
+          for n in $(seq 1 35); do
+            if curl -fsS "http://127.0.0.1:8000/api/health" -o /dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS "http://127.0.0.1:8000/api/health" -o /dev/null
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          "$CHROME" --headless=new --no-sandbox --disable-gpu \
+            --disable-dev-shm-usage \
+            --remote-debugging-address=127.0.0.1 \
+            --remote-debugging-port=9222 \
+            --user-data-dir="$RUNNER_TEMP/m02-disposable-browser" \
+            "http://127.0.0.1:8000/" > "$RUNNER_TEMP/rea-m02-private/chrome.log" 2>&1 &
+          for n in $(seq 1 35); do
+            if curl -fsS "http://127.0.0.1:9222/json/version" -o /dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS "http://127.0.0.1:9222/json/version" -o /dev/null
+      - name: REAL MCP initialize -> tools/list -> two tools/call
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/mcp_stdio_smoke.py \
+            --report "$RUNNER_TEMP/rea-m02-public/mcp-summary.json" \
+            --stderr-file "$RUNNER_TEMP/rea-m02-private/mcp-stderr.log"
+          python - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"rea-m02-public/mcp-summary.json"
+          data=json.loads(p.read_text())
+          assert data["two_real_mcp_tools_executed"] is True
+          assert data["catalog"]["required_tools_visible"] is True
+          assert data["list_targets"]["provider"]=="rea-cdp-browser"
+          assert data["inspect_page"]["provider"]=="rea-cdp-browser"
+          assert data["mcp_transport"]=="stdio_JSON_RPC"
+          assert data["tool_family_scope"]=="browser"
+          assert data["antigravity_client_used"] is False
+          assert data["scientific_P2"]=="HOLD_PENDING_ANTIGRAVITY_AND_REVIEW"
+          assert data["pilot_t0_t3_executed"] is False
+          assert "/devtools/" not in p.read_text()
+          print("M02_REAL_STDIO_MCP_TOOLS_CALLED=true")
+          print("M02_ANTIGRAVITY_CLIENT_VERIFIED=false")
+          print("M02_SCIENTIFIC_P2=HOLD")
+          PY
+      - name: Upload approved redacted summary ONLY
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m02-real-mcp-stdio-public-summary
+          path: ${{ runner.temp }}/rea-m02-public/mcp-summary.json
+          if-no-files-found: warn
+          retention-days: 14
