@@ -65,3 +65,8 @@ A separately restricted agent process could access only the synthetic Rota 2 API
 ### WP3/P4 — Candidate handoff and alternative correctness control (2026-11-16)
 
 [Content-addressed transfer](handoff/README.md) allows an agent output artifact to be checked and imported into an evaluator-controlled inbox **without running code**. A public smoke uses Rota 2, a deliberately faulty category mutant and an alternative API that satisfies the same four public cases. This is **not** genuine hidden-oracle validation or scientific gate approval. [Evidence and limitations](../docs/research/P4_EVALUATOR_CHECKPOINT_2026-11-16.md).
+
+
+### WP3 — Avaliador: entrada de benchmark privado (16/11/2026)
+
+O novo [contrato de custódia e intake](benchmark/README.md) verifica a estrutura e os hashes de fonte e oráculos externos ao repositório e gera apenas metadados públicos minimizados. O [checkpoint](../docs/research/WP3_BENCHMARK_INTAKE_CHECKPOINT_2026-11-16.md) descreve o que não foi comprovado: nenhum benchmark privado independente, isolamento sob LLM real, aprovação de P1–P4 ou piloto T0–T3.
