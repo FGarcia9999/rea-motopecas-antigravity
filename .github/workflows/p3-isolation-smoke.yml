@@ -1,0 +1,126 @@
+name: REA P3 — isolated synthetic agent/evaluator smoke (not a pilot)
+
+on:
+  push:
+    branches:
+      - research/p3-network-fs-isolation-demo-2026-11-16
+    paths:
+      - ".github/workflows/p3-isolation-smoke.yml"
+      - "research/isolation/**"
+      - "tests/test_p3_isolation.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build disposable reference, agent and evaluator topology
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/p3-evaluator-private" "$RUNNER_TEMP/p3-public-reports"
+          printf 'SYNTHETIC_DENIED_CANARY_%s\n' "$GITHUB_RUN_ID" > "$RUNNER_TEMP/p3-evaluator-private/p3-canary"
+          chmod 000 "$RUNNER_TEMP/p3-evaluator-private/p3-canary"
+
+          cleanup() {
+            set +e
+            docker rm -f p3-agent p3-reference p3-evaluator >/dev/null 2>&1
+            docker network rm p3-agent-net p3-evaluator-net >/dev/null 2>&1
+            chmod 600 "$RUNNER_TEMP/p3-evaluator-private/p3-canary" 2>/dev/null
+          }
+          trap cleanup EXIT
+
+          docker pull python:3.11-slim
+          docker build --pull -f research/isolation/Dockerfile.reference \
+            -t p3-rota2-reference:"$GITHUB_SHA" .
+
+          docker network create --driver bridge --internal p3-agent-net
+          docker network create --driver bridge --internal p3-evaluator-net
+          docker run -d --name p3-reference --network p3-agent-net \
+            --read-only --cap-drop ALL --security-opt no-new-privileges \
+            --user 10001:10001 --pids-limit 80 --memory 384m \
+            --tmpfs /tmp:rw,nosuid,size=64m \
+            -e MOTO_DB_PATH=/tmp/p3-disposable.db \
+            p3-rota2-reference:"$GITHUB_SHA"
+          docker network connect --alias p3-reference p3-evaluator-net p3-reference
+
+          docker run -d --name p3-evaluator --network p3-evaluator-net \
+            --read-only --cap-drop ALL --security-opt no-new-privileges \
+            --user 65534:65534 --pids-limit 64 --memory 192m \
+            --mount "type=bind,src=$PWD/research/isolation/evaluator_service.py,dst=/opt/evaluator/service.py,readonly" \
+            --mount "type=bind,src=$RUNNER_TEMP/p3-evaluator-private,dst=/evaluator-private,readonly" \
+            python:3.11-slim python /opt/evaluator/service.py
+
+          # Positive control: the separate evaluator network can reach its service.
+          for i in $(seq 1 25); do
+            if docker run --rm --network p3-evaluator-net python:3.11-slim \
+              python -c "import urllib.request,json; d=json.load(urllib.request.urlopen('http://p3-evaluator:8001/health',timeout=2)); assert d['status']=='evaluator-demo-ready'" >/dev/null 2>&1; then
+              break
+            fi
+            sleep 1
+          done
+          docker run --rm --network p3-evaluator-net python:3.11-slim \
+            python -c "import urllib.request,json; d=json.load(urllib.request.urlopen('http://p3-evaluator:8001/health',timeout=3)); assert d['status']=='evaluator-demo-ready'"
+
+          EVAL_IP="$(docker inspect --format '{{(index .NetworkSettings.Networks "p3-evaluator-net").IPAddress}}' p3-evaluator)"
+          test -n "$EVAL_IP"
+          # Scripted agent is unprivileged, no repository mount, no Docker socket,
+          # no default route, and lives only on its own Docker internal bridge.
+          docker create --name p3-agent --network p3-agent-net \
+            --user 65534:65534 --read-only --cap-drop ALL \
+            --security-opt no-new-privileges --pids-limit 64 --memory 192m \
+            --tmpfs /tmp:rw,noexec,nosuid,size=16m \
+            --mount "type=bind,src=$PWD/research/isolation/agent_probe.py,dst=/probe/agent_probe.py,readonly" \
+            --mount "type=bind,src=$RUNNER_TEMP/p3-evaluator-private/p3-canary,dst=/restricted/p3-canary,readonly" \
+            python:3.11-slim python /probe/agent_probe.py --evaluator-ip "$EVAL_IP"
+
+          docker start -a p3-agent > "$RUNNER_TEMP/p3-public-reports/agent-probe.json"
+          docker inspect --format '{{json .}}' p3-agent > "$RUNNER_TEMP/p3-public-reports/agent-inspect.json"
+          docker inspect --format '{{json .}}' p3-reference > "$RUNNER_TEMP/p3-public-reports/reference-inspect.json"
+          docker inspect --format '{{json .}}' p3-evaluator > "$RUNNER_TEMP/p3-public-reports/evaluator-inspect.json"
+          docker network inspect --format '{{json .}}' p3-agent-net > "$RUNNER_TEMP/p3-public-reports/agent-network.json"
+          docker network inspect --format '{{json .}}' p3-evaluator-net > "$RUNNER_TEMP/p3-public-reports/evaluator-network.json"
+
+          # Read only public metadata; private evaluator sentinel content is never output.
+          python research/isolation/verify_host.py \
+            --agent "$RUNNER_TEMP/p3-public-reports/agent-inspect.json" \
+            --reference "$RUNNER_TEMP/p3-public-reports/reference-inspect.json" \
+            --evaluator "$RUNNER_TEMP/p3-public-reports/evaluator-inspect.json" \
+            --probe "$RUNNER_TEMP/p3-public-reports/agent-probe.json" \
+            --agent-network "$RUNNER_TEMP/p3-public-reports/agent-network.json" \
+            --evaluator-network "$RUNNER_TEMP/p3-public-reports/evaluator-network.json" \
+            --report "$RUNNER_TEMP/p3-public-reports/isolation-summary.json"
+
+          # Do NOT upload raw docker-inspect: it may contain host bind paths.
+          # Preserve only redacted check booleans and test results.
+          rm "$RUNNER_TEMP/p3-public-reports/"*"-inspect.json"
+          rm "$RUNNER_TEMP/p3-public-reports/"*"-network.json"
+          python - <<'PY'
+          import json,os,pathlib
+          report=pathlib.Path(os.environ["RUNNER_TEMP"])/"p3-public-reports"/"isolation-summary.json"
+          summary=json.loads(report.read_text())
+          assert summary["result"]=="PASS_LIMITED_DOCKER_TOPOLOGY"
+          assert summary["scientific_P3"]=="NOT_APPROVED"
+          print("P3_RESTRICTED_CONTAINER_SMOKE="+summary["result"])
+          print("P3_ISOLATION_FULL_SCIENTIFIC_GATE=NOT_APPROVED")
+          PY
+      - name: Retain public, minimized smoke summaries only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rea-p3-synthetic-isolation
+          path: |
+            ${{ runner.temp }}/p3-public-reports/agent-probe.json
+            ${{ runner.temp }}/p3-public-reports/isolation-summary.json
+          if-no-files-found: warn
+          retention-days: 14

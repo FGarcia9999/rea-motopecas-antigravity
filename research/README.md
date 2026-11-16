@@ -55,3 +55,8 @@ See [Experimental Protocol v1.2](../docs/research/EXPERIMENTAL_PROTOCOL_v1.2.md)
 ### WP2 local CLI smoke checkpoint (16/11/2026)
 
 A GitHub-hosted disposable Ubuntu runner successfully executed official `rea-agents@6.9.0` CLI target discovery and passive inspection of the local Rota 2 app. A separate controlled CDP driver clicked `Freios` during a 10-second REA capture, observing two HTTP 200 product requests (one category-filtered) and 2 UI products. See [auditable evidence report](WP2_CLI_SMOKE_EVIDENCE_2026-11-16.md) and [GitHub run](https://github.com/FGarcia9999/rea-motopecas-antigravity/actions/runs/43932452118). **Do not classify this as a Windows/Antigravity MCP session, independent oracle evaluation, source-hidden comparison or P2 research-team freeze.** The running version 6.9.0 rejects the development-only `--approved` flag; explicit loopback-origin environment controls were used instead.
+
+
+### P3 — Synthetic container isolation evidence (2026-11-16)
+
+A separately restricted agent process could access only the synthetic Rota 2 API while probes for the evaluator, protected canary and source paths were blocked. This is a **scripted environment test**, not an approved real-agent P3 gate or hidden benchmark. See [engineering evidence](../docs/research/P3_ISOLATION_CHECKPOINT_2026-11-16.md) and [implementation](isolation/README.md).
