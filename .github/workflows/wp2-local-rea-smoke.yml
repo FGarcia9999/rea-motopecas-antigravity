@@ -100,6 +100,46 @@ jobs:
             'controlled_experiment':'NOT_EXECUTED',
           },indent=2)+'\n')
           PY
+      - name: Inspect selected local browser page through REA CLI
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os,pathlib
+          base=pathlib.Path(os.environ['RUNNER_TEMP'])/'rea-wp2-smoke'
+          d=json.loads((base/'targets.json').read_text())
+          targets=d.get('normalized_result',{}).get('targets',[])
+          match=[t for t in targets if t.get('origin')=='http://127.0.0.1:8000' and t.get('type')=='page']
+          if len(match)!=1: raise SystemExit('EXPECTED_SINGLE_LOCAL_TARGET')
+          target=match[0]['target_id']
+          if not (isinstance(target,str) and target.isalnum() and len(target)<=128):
+            raise SystemExit('INVALID_TARGET_ID')
+          (base/'target-id.txt').write_text(target+'\n')
+          print('LOCAL_TARGET_ID_PRESENT=true')
+          PY
+          TARGET_ID="$(cat "$RUNNER_TEMP/rea-wp2-smoke/target-id.txt")"
+          npx -y "rea-agents@$REA_VERSION" inspect-web-page 'http://127.0.0.1:9222' "$TARGET_ID" --observation-ms 2000 --json > "$RUNNER_TEMP/rea-wp2-smoke/inspect.json"
+          python - <<'PY'
+          import json,os,hashlib,pathlib
+          base=pathlib.Path(os.environ['RUNNER_TEMP'])/'rea-wp2-smoke'
+          p=base/'inspect.json'
+          d=json.loads(p.read_text())
+          if not isinstance(d.get('evidence_id'),str): raise SystemExit('NO_REA_EVIDENCE_ID')
+          if not isinstance(d.get('normalized_result'),dict): raise SystemExit('NO_REAL_NORMALIZED_RESULT')
+          if d.get('provider',{}).get('id')!='rea-cdp-browser': raise SystemExit('NOT_REA_CDP_PROVIDER')
+          print('REA_INSPECT_REAL_OUTPUT_SHA256='+hashlib.sha256(p.read_bytes()).hexdigest())
+          print('REA_INSPECT_EVIDENCE_ID='+d['evidence_id'])
+          print('REA_INSPECT_PROVIDER='+d['provider']['id'])
+          (base/'inspect-status.json').write_text(json.dumps({
+            'status':'REAL_REA_CLI_INSPECT_LOCAL_DEMONSTRATOR',
+            'evidence_id':d['evidence_id'],
+            'release':os.environ['REA_VERSION'],
+            'normalized_result_present':True,
+            'raw_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),
+            'source_hidden_experiment':'NOT_EXECUTED',
+            'antigravity_mcp_client':'NOT_TESTED',
+            'scientific_P2':'NOT_FROZEN_PENDING_INDEPENDENT_REVIEW',
+          },indent=2)+'\n')
+          PY
       - name: Upload synthetic local-only evidence for independent review
         if: always()
         uses: actions/upload-artifact@v4
