@@ -1,0 +1,98 @@
+name: REA M00 — synthetic custody canary (NOT real-agent approval)
+
+on:
+  push:
+    branches:
+      - research/m00-custody-access-preflight-2026-11-16
+    paths:
+      - .github/workflows/m00-custody-preflight.yml
+      - research/custody/**
+      - tests/test_research_custody.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-custody:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test public custody contract
+        run: python -m pytest -q tests/test_research_custody.py
+      - name: Exercise real permission denial from scripted UID 65534
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/rea-m00-public"
+          mkdir -p "$RUNNER_TEMP/rea-m00-synthetic"
+          printf 'FAKE_CANARY_NO_SECRET\n' > "$RUNNER_TEMP/rea-m00-synthetic/rea_m00_synthetic_canary.txt"
+          chmod 000 "$RUNNER_TEMP/rea-m00-synthetic/rea_m00_synthetic_canary.txt"
+
+          cleanup() {
+            set +e
+            docker rm -f m00-reference >/dev/null 2>&1
+            docker network rm m00-test-net >/dev/null 2>&1
+            chmod 600 "$RUNNER_TEMP/rea-m00-synthetic/rea_m00_synthetic_canary.txt" 2>/dev/null
+          }
+          trap cleanup EXIT
+
+          docker network create --internal --driver bridge m00-test-net
+          docker pull python:3.11-slim
+          docker run -d --name m00-reference --network m00-test-net \
+            --read-only --cap-drop ALL --security-opt no-new-privileges \
+            --user 65534:65534 --pids-limit 32 --memory 128m \
+            --tmpfs /tmp:rw,nosuid,size=16m \
+            python:3.11-slim python -m http.server 8000 --bind 0.0.0.0 --directory /tmp
+
+          for i in $(seq 1 25); do
+            if docker run --rm --network m00-test-net --user 65534:65534 \
+              --read-only --cap-drop ALL --security-opt no-new-privileges \
+              python:3.11-slim python -c "import urllib.request; assert urllib.request.urlopen('http://m00-reference:8000/',timeout=2).status==200" >/dev/null 2>&1; then
+              break
+            fi
+            sleep 1
+          done
+
+          docker run --rm --network m00-test-net \
+            --user 65534:65534 --read-only --cap-drop ALL \
+            --security-opt no-new-privileges --pids-limit 32 --memory 128m \
+            --mount "type=bind,src=$PWD/research/custody/preflight.py,dst=/tool/preflight.py,readonly" \
+            --mount "type=bind,src=$RUNNER_TEMP/rea-m00-synthetic/rea_m00_synthetic_canary.txt,dst=/protected/rea_m00_synthetic_canary.txt,readonly" \
+            python:3.11-slim python /tool/preflight.py \
+            --canary-file /protected/rea_m00_synthetic_canary.txt \
+            --runtime-url http://m00-reference:8000/ \
+            --expected-uid 65534 > "$RUNNER_TEMP/rea-m00-public/preflight.json"
+
+          python - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"rea-m00-public/preflight.json"
+          result=json.loads(p.read_text())
+          assert result["technical_result"]=="PASS_ONE_SCOPE", result["technical_result"]
+          assert result["canary_read_result"]=="DENIED"
+          assert result["authorized_synthetic_runtime_reachable"] is True
+          assert result["uid_matches_predeclared_unprivileged_identity"] is True
+          assert result["real_llm_or_antigravity_identity_attested"] is False
+          assert result["all_network_mcp_and_connector_scopes_checked"] is False
+          assert result["scientific_P3"]=="HOLD"
+          assert result["pilot_authorized"] is False
+          text=p.read_text()
+          assert "/protected/" not in text and "FAKE_CANARY" not in text
+          print("M00_SCRIPTED_ACCESS_DENIED_AND_PUBLIC_RUNTIME_REACHABLE=true")
+          print("M00_REAL_AGENT_IDENTITY_ATTESTED=false")
+          print("M00_P3_FULL_GATE=HOLD")
+          PY
+      - name: Archive only synthetic redacted booleans
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m00-public-synthetic-custody-preflight
+          path: ${{ runner.temp }}/rea-m00-public/preflight.json
+          if-no-files-found: warn
+          retention-days: 14
