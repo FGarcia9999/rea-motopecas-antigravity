@@ -54,7 +54,7 @@ def audit(agent: dict, reference: dict, evaluator: dict, probe: dict,
 def main() -> int:
     parser = argparse.ArgumentParser()
     for name in ("agent", "reference", "evaluator", "probe", "agent_network", "evaluator_network"):
-        parser.add_argument("--" + name, type=Path, required=True)
+        parser.add_argument("--" + name.replace("_", "-"), dest=name, type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
     args = parser.parse_args()
     data = {k: json.loads(getattr(args, k).read_text()) for k in
