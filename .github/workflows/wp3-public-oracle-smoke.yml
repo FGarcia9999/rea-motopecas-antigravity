@@ -90,7 +90,7 @@ jobs:
         with:
           name: wp3-public-toy-oracle-smoke
           path: |
-            /tmp/wp3-evaluator-private/public-reference-report.json
-            /tmp/wp3-evaluator-private/public-mutant-report.json
+            ${{ runner.temp }}/wp3-evaluator-private/public-reference-report.json
+            ${{ runner.temp }}/wp3-evaluator-private/public-mutant-report.json
           if-no-files-found: warn
           retention-days: 14
