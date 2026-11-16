@@ -1,0 +1,96 @@
+name: REA WP3 - PUBLIC toy oracle and known-bad mutant (not a study)
+
+on:
+  push:
+    branches:
+      - research/wp3-blackbox-oracles-v0-1-2026-11-16
+    paths:
+      - .github/workflows/wp3-public-oracle-smoke.yml
+      - research/oracles/**
+      - tests/test_wp3_blackbox.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  public-oracle-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install only project test dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Build disposable synthetic reference and external evaluation suite
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/wp3-evaluator-private"
+          export MOTO_DB_PATH="$RUNNER_TEMP/wp3-public-rota2.db"
+          python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 > "$RUNNER_TEMP/wp3-uvicorn.log" 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/api/health -o /dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8000/api/health -o /dev/null
+          python -m research.oracles.toy_suite --output "$RUNNER_TEMP/wp3-evaluator-private/public-toy-suite.json"
+      - name: Reference must PASS the public toy suite
+        run: |
+          set -euo pipefail
+          python -m research.oracles.blackbox \
+            --suite "$RUNNER_TEMP/wp3-evaluator-private/public-toy-suite.json" \
+            --target http://127.0.0.1:8000 \
+            --run-id PUBLIC_REFERENCE_DEMO \
+            --report "$RUNNER_TEMP/wp3-evaluator-private/public-reference-report.json"
+      - name: Known wrong category implementation must FAIL for a behavioral reason
+        run: |
+          set -euo pipefail
+          python -m research.oracles.toy_mutant --port 8001 > "$RUNNER_TEMP/wp3-mutant.log" 2>&1 &
+          for i in $(seq 1 20); do
+            if curl -sS http://127.0.0.1:8001/api/health -o /dev/null; then break; fi
+            sleep 1
+          done
+          set +e
+          python -m research.oracles.blackbox \
+            --suite "$RUNNER_TEMP/wp3-evaluator-private/public-toy-suite.json" \
+            --target http://127.0.0.1:8001 \
+            --run-id PUBLIC_KNOWN_BAD_MUTANT \
+            --report "$RUNNER_TEMP/wp3-evaluator-private/public-mutant-report.json"
+          exit_code=$?
+          set -e
+          test "$exit_code" -eq 3
+          python - <<'PY'
+          import json, os, pathlib
+          folder=pathlib.Path(os.environ["RUNNER_TEMP"])/"wp3-evaluator-private"
+          ref=json.loads((folder/"public-reference-report.json").read_text())
+          mutant=json.loads((folder/"public-mutant-report.json").read_text())
+          assert ref["result"]=="PASS" and ref["passed_cases"]==ref["total_cases"]==4
+          assert mutant["result"]=="FAIL" and mutant["total_cases"]==4
+          case=next(x for x in mutant["cases"] if x["case_id"]=="PUBLIC_RF03_VALID_CATEGORY")
+          assert case["failure_code"]=="LENGTH_MISMATCH" and case["passed"] is False
+          assert ref["oracle_independent_review_attested"] is False
+          assert ref["isolation_attested"] is False
+          for p in (folder/"public-reference-report.json",folder/"public-mutant-report.json"):
+            output=p.read_text()
+            assert "DEMO-" not in output
+            assert "R2-FR-001" not in output
+            assert "payment_processed" not in output
+          print("WP3_PUBLIC_TOY_REFERENCE_PASS=true")
+          print("WP3_PUBLIC_KNOWN_MUTANT_DETECTED=true")
+          print("WP3_HIDDEN_ORACLE_VERIFIED=false")
+          print("WP3_INDEPENDENT_REVIEW_COMPLETE=false")
+          PY
+      - name: Archive only disposable public demo metadata
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wp3-public-toy-oracle-smoke
+          path: |
+            ${{ runner.temp }}/wp3-evaluator-private/public-reference-report.json
+            ${{ runner.temp }}/wp3-evaluator-private/public-mutant-report.json
+          if-no-files-found: warn
+          retention-days: 14

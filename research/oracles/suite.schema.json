@@ -1,0 +1,232 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "WP3 evaluator-only behavioral suite contract — JSON structure public, hidden cases private",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "suite_id",
+    "application_id",
+    "cases"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "suite_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,90}$"
+    },
+    "application_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,90}$"
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 300,
+      "items": {
+        "$ref": "#/$defs/case"
+      }
+    }
+  },
+  "$defs": {
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "case_id",
+        "criticality",
+        "steps"
+      ],
+      "properties": {
+        "case_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,90}$"
+        },
+        "criticality": {
+          "enum": [
+            "CRITICAL",
+            "MAJOR",
+            "MINOR"
+          ]
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 35,
+          "items": {
+            "$ref": "#/$defs/step"
+          }
+        }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "path",
+        "expected_status"
+      ],
+      "properties": {
+        "method": {
+          "enum": [
+            "GET",
+            "POST"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "minLength": 6,
+          "maxLength": 1024,
+          "pattern": "^/api/"
+        },
+        "expected_status": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 599
+        },
+        "headers": {
+          "type": "object",
+          "maxProperties": 2,
+          "propertyNames": {
+            "enum": [
+              "Content-Type",
+              "Idempotency-Key",
+              "content-type",
+              "idempotency-key"
+            ]
+          },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "json": {
+          "type": "object",
+          "maxProperties": 30
+        },
+        "checks": {
+          "type": "array",
+          "maxItems": 40,
+          "items": {
+            "$ref": "#/$defs/check"
+          }
+        },
+        "capture": {
+          "type": "object",
+          "maxProperties": 12,
+          "propertyNames": {
+            "pattern": "^[A-Za-z0-9_-]{1,90}$"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 512
+          }
+        }
+      }
+    },
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "op",
+        "pointer"
+      ],
+      "properties": {
+        "op": {
+          "enum": [
+            "equals",
+            "length",
+            "min_length",
+            "all_equal",
+            "equals_capture"
+          ]
+        },
+        "pointer": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "field_pointer": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "value": {},
+        "capture_name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,90}$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "equals"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "value"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "enum": [
+                  "length",
+                  "min_length"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "value"
+            ],
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "all_equal"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "field_pointer",
+              "value"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "equals_capture"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "capture_name"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
