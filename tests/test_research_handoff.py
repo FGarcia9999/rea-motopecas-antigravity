@@ -157,5 +157,5 @@ def test_reject_extraction_to_existing_inbox(handoff):
 def test_disallow_checkout_as_transfer_destination(handoff):
     source, archive, inbox = handoff
     from research.handoff.bundle import REPO
-    with pytest.raises(HandoffError, match="outside public repository"):
+    with pytest.raises(HandoffError, match="inside public repository"):
         pack(source, REPO / "forbidden.zip", "R1", "T0")
