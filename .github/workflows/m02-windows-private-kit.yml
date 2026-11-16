@@ -24,9 +24,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install local unit-test runner only
+      - name: Install project and test dependencies
         shell: pwsh
-        run: python -m pip install pytest
+        run: python -m pip install -r requirements-dev.txt
       - name: Validate private-evidence contract with synthetic unit data
         shell: pwsh
         run: python -m pytest -q tests/test_research_antigravity_session.py
