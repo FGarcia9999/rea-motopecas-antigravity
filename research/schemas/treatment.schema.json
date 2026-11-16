@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Treatment package: draft does not mean executed",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "treatment_id",
+    "structured_workflow",
+    "rea_instrumentation",
+    "status",
+    "baseline_agent",
+    "tools_allowed",
+    "permissions",
+    "model_id",
+    "version_manifest",
+    "stop_rule"
+  ],
+  "properties": {
+    "treatment_id": {
+      "enum": [
+        "T0",
+        "T1",
+        "T2",
+        "T3"
+      ]
+    },
+    "structured_workflow": {
+      "type": "boolean"
+    },
+    "rea_instrumentation": {
+      "type": "boolean"
+    },
+    "status": {
+      "enum": [
+        "DRAFT",
+        "FROZEN"
+      ]
+    },
+    "baseline_agent": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tools_allowed": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authorized_target",
+        "filesystem_policy",
+        "network_policy",
+        "credential_policy"
+      ],
+      "properties": {
+        "authorized_target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "filesystem_policy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "network_policy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "credential_policy": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "model_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version_manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "agent",
+        "browser",
+        "runtime",
+        "prompts_sha256",
+        "skills_sha256",
+        "rea_release",
+        "mcp_schema_sha256"
+      ],
+      "properties": {
+        "agent": {
+          "type": "string",
+          "minLength": 1
+        },
+        "browser": {
+          "type": "string",
+          "minLength": 1
+        },
+        "runtime": {
+          "type": "string",
+          "minLength": 1
+        },
+        "prompts_sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "skills_sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rea_release": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "mcp_schema_sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "stop_rule": {
+      "type": "string",
+      "minLength": 1
+    },
+    "approved_by": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "approved_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "wall_seconds",
+        "max_tool_calls",
+        "token_cap"
+      ],
+      "properties": {
+        "wall_seconds": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "max_tool_calls": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "token_cap": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        }
+      }
+    }
+  },
+  "if": {
+    "properties": {
+      "status": {
+        "const": "FROZEN"
+      }
+    },
+    "required": [
+      "status"
+    ]
+  },
+  "then": {
+    "required": [
+      "approved_by",
+      "approved_at",
+      "budget"
+    ]
+  }
+}

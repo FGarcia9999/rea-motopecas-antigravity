@@ -1,0 +1,184 @@
+name: REA WP2 — local-only CLI smoke (not an experiment)
+
+on:
+  push:
+    branches:
+      - research/wp1-wp3-executable-contracts-2026-11-16
+    paths:
+      - .github/workflows/wp2-local-rea-smoke.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-rea-cli:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      REA_BROWSER_OBSERVE_ENABLED: 'true'
+      REA_BROWSER_CDP_ENDPOINTS_JSON: '["http://127.0.0.1:9222"]'
+      REA_BROWSER_ALLOWED_ORIGINS_JSON: '["http://127.0.0.1:8000"]'
+      # Exact release. rea-agents@6.9.0 CLI rejects --approved (unreleased/fork-specific flag).
+      # Browser scope is still fail-closed through the three REA_BROWSER_* variables above.
+      REA_VERSION: '6.9.0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Prepare isolated evidence area
+        run: mkdir -p "$RUNNER_TEMP/rea-wp2-smoke"
+      - name: Record environment without secrets
+        run: |
+          set -euo pipefail
+          { node --version; npm --version; python --version; } | tee "$RUNNER_TEMP/rea-wp2-smoke/runtime.txt"
+          python - <<'PY'
+          import re,subprocess
+          v=subprocess.check_output(['node','--version'],text=True).strip()
+          a=list(map(int,re.fullmatch(r'v(\d+)\.(\d+)\.(\d+)',v).groups()))
+          supported=(a[0]==22 and a >= [22,23,4]) or (a[0]==24 and a >= [24,22,1]) or (a[0]==26 and a >= [26,12,1])
+          if not supported: raise SystemExit("UNSUPPORTED_NODE_VERSION")
+          PY
+      - name: Run only the synthetic local Rota 2 target
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements.txt
+          python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 > "$RUNNER_TEMP/uvicorn.log" 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS 'http://127.0.0.1:8000/api/products?category=Freios' -o /dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS 'http://127.0.0.1:8000/api/products?category=Freios' -o "$RUNNER_TEMP/rea-wp2-smoke/local-api.json"
+      - name: Start disposable headless browser on loopback
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          echo "Browser: $CHROME"
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --remote-debugging-address=127.0.0.1 --remote-debugging-port=9222 --user-data-dir="$RUNNER_TEMP/rea-wp2-browser-disposable" 'http://127.0.0.1:8000/' > "$RUNNER_TEMP/chrome.log" 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS 'http://127.0.0.1:9222/json/version' -o "$RUNNER_TEMP/rea-wp2-smoke/cdp-version.json"; then break; fi
+            sleep 1
+          done
+          test -s "$RUNNER_TEMP/rea-wp2-smoke/cdp-version.json"
+      - name: Call pinned official REA CLI (local synthetic target only)
+        run: |
+          set -euo pipefail
+          npm view "rea-agents@$REA_VERSION" dist.integrity --json > "$RUNNER_TEMP/rea-wp2-smoke/npm-package-integrity.json"
+          npx -y "rea-agents@$REA_VERSION" --version > "$RUNNER_TEMP/rea-wp2-smoke/rea-version.txt"
+          npx -y "rea-agents@$REA_VERSION" list-browser-targets 'http://127.0.0.1:9222' --json > "$RUNNER_TEMP/rea-wp2-smoke/targets.json"
+          python - <<'PY'
+          import json,os,hashlib,pathlib
+          base=pathlib.Path(os.environ['RUNNER_TEMP'])/'rea-wp2-smoke'
+          for name in ('rea-version.txt','targets.json','npm-package-integrity.json'):
+            p=base/name
+            if not p.is_file() or p.stat().st_size==0: raise SystemExit("MISSING_REAL_REA_OUTPUT: "+name)
+            print(f"OUTPUT {name} bytes={p.stat().st_size} sha256={hashlib.sha256(p.read_bytes()).hexdigest()}")
+          data=json.loads((base/'targets.json').read_text())
+          def url_matches(obj):
+            if isinstance(obj,dict):
+              if any(k in obj and isinstance(obj[k],str) and obj[k].startswith('http://127.0.0.1:8000') for k in ('url','target_url','page_url')):
+                return True
+              return any(url_matches(v) for v in obj.values())
+            if isinstance(obj,list): return any(url_matches(v) for v in obj)
+            return False
+          print('REA_LIST_BROWSER_TARGETS_JSON_VALID=true')
+          print('LOCAL_TARGET_DESCRIBED='+str(url_matches(data)).lower())
+          if not url_matches(data): raise SystemExit('NO_LOCAL_PAGE_TARGET_IN_REA_RESULT')
+          (base/'smoke-status.json').write_text(json.dumps({
+            'tool_call':'rea-agents list-browser-targets',
+            'target':'http://127.0.0.1:9222',
+            'approved':True,
+            'release':os.environ['REA_VERSION'],
+            'status':'CLI_INVOKED_RETURNED_LOCAL_TARGET_NOT_A_COMPLETED_REA_ANTIGRAVITY_SESSION',
+            'scientific_P2':'NOT_VERIFIED',
+            'controlled_experiment':'NOT_EXECUTED',
+          },indent=2)+'\n')
+          PY
+      - name: Inspect selected local browser page through REA CLI
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os,pathlib
+          base=pathlib.Path(os.environ['RUNNER_TEMP'])/'rea-wp2-smoke'
+          d=json.loads((base/'targets.json').read_text())
+          targets=d.get('normalized_result',{}).get('targets',[])
+          match=[t for t in targets if t.get('origin')=='http://127.0.0.1:8000' and t.get('type')=='page']
+          if len(match)!=1: raise SystemExit('EXPECTED_SINGLE_LOCAL_TARGET')
+          target=match[0]['target_id']
+          if not (isinstance(target,str) and target.isalnum() and len(target)<=128):
+            raise SystemExit('INVALID_TARGET_ID')
+          (base/'target-id.txt').write_text(target+'\n')
+          print('LOCAL_TARGET_ID_PRESENT=true')
+          PY
+          TARGET_ID="$(cat "$RUNNER_TEMP/rea-wp2-smoke/target-id.txt")"
+          npx -y "rea-agents@$REA_VERSION" inspect-web-page 'http://127.0.0.1:9222' "$TARGET_ID" --observation-ms 2000 --json > "$RUNNER_TEMP/rea-wp2-smoke/inspect.json"
+          python - <<'PY'
+          import json,os,hashlib,pathlib
+          base=pathlib.Path(os.environ['RUNNER_TEMP'])/'rea-wp2-smoke'
+          p=base/'inspect.json'
+          d=json.loads(p.read_text())
+          if not isinstance(d.get('evidence_id'),str): raise SystemExit('NO_REA_EVIDENCE_ID')
+          if not isinstance(d.get('normalized_result'),dict): raise SystemExit('NO_REAL_NORMALIZED_RESULT')
+          if d.get('provider',{}).get('id')!='rea-cdp-browser': raise SystemExit('NOT_REA_CDP_PROVIDER')
+          print('REA_INSPECT_REAL_OUTPUT_SHA256='+hashlib.sha256(p.read_bytes()).hexdigest())
+          print('REA_INSPECT_EVIDENCE_ID='+d['evidence_id'])
+          print('REA_INSPECT_PROVIDER='+d['provider']['id'])
+          (base/'inspect-status.json').write_text(json.dumps({
+            'status':'REAL_REA_CLI_INSPECT_LOCAL_DEMONSTRATOR',
+            'evidence_id':d['evidence_id'],
+            'release':os.environ['REA_VERSION'],
+            'normalized_result_present':True,
+            'raw_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),
+            'source_hidden_experiment':'NOT_EXECUTED',
+            'antigravity_mcp_client':'NOT_TESTED',
+            'scientific_P2':'NOT_FROZEN_PENDING_INDEPENDENT_REVIEW',
+          },indent=2)+'\n')
+          PY
+      - name: Trigger category filter while REA passively observes
+        run: |
+          set -euo pipefail
+          python -m pip install websocket-client==1.9.0
+          npx -y "rea-agents@$REA_VERSION" inspect-web-page 'http://127.0.0.1:9222' "$(cat "$RUNNER_TEMP/rea-wp2-smoke/target-id.txt")" --observation-ms 10000 --json > "$RUNNER_TEMP/rea-wp2-smoke/filter-inspect.json" &
+          REA_PID=$!
+          sleep 3
+          python research/cdp_demo_driver.py --output "$RUNNER_TEMP/rea-wp2-smoke/filter-driver.json"
+          wait "$REA_PID"
+          python - <<'PY'
+          import hashlib,json,os,pathlib
+          base=pathlib.Path(os.environ['RUNNER_TEMP'])/'rea-wp2-smoke'
+          p=base/'filter-inspect.json'
+          data=json.loads(p.read_text())
+          if data.get('operation')!='inspect_web_page' or data.get('provider',{}).get('id')!='rea-cdp-browser':
+            raise SystemExit('NOT_A_REA_INSPECT_RESULT')
+          network=data.get('normalized_result',{}).get('network',{}).get('requests',[])
+          matching=[r for r in network if '/api/products' in json.dumps(r)]
+          print('REA_FILTER_OBSERVATION_NETWORK_REQUESTS='+str(len(network)))
+          print('REA_FILTER_OBSERVATION_PRODUCTS_REQUESTS='+str(len(matching)))
+          print('REA_FILTER_OBSERVATION_SHA256='+hashlib.sha256(p.read_bytes()).hexdigest())
+          if not matching:
+            raise SystemExit('NO_PRODUCTS_REQUEST_OBSERVED_AFTER_CONTROLLED_CLICK')
+          (base/'filter-status.json').write_text(json.dumps({
+            'status':'REAL_REA_CAPTURE_OF_SYNTHETIC_LOCAL_FILTER_INTERACTION',
+            'rea_evidence_id':data.get('evidence_id'),
+            'rea_provider':data.get('provider',{}).get('id'),
+            'observed_requests':len(network),
+            'product_requests':len(matching),
+            'rea_raw_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),
+            'stimulus_driver':'research/cdp_demo_driver.py (not REA)',
+            'scientific_P2':'NOT_FROZEN_PENDING_INDEPENDENT_REVIEW',
+            'source_hidden_comparative_experiment':'NOT_EXECUTED'
+          },indent=2)+'\n')
+          PY
+      - name: Upload synthetic local-only evidence for independent review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rea-wp2-smoke-local-evidence
+          path: ${{ runner.temp }}/rea-wp2-smoke
+          retention-days: 14

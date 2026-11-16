@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Evaluator-only requirement ground truth — schema is public, substantive records must not be public",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "application_id",
+    "requirement_id",
+    "source_statement",
+    "precondition",
+    "action_sequence",
+    "expected_behavior",
+    "category",
+    "criticality",
+    "observability",
+    "oracle_id"
+  ],
+  "properties": {
+    "application_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "requirement_id": {
+      "type": "string",
+      "pattern": "^[A-Z0-9_-]+$"
+    },
+    "source_statement": {
+      "type": "string",
+      "minLength": 1
+    },
+    "precondition": {
+      "type": "string",
+      "minLength": 1
+    },
+    "action_sequence": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    },
+    "expected_behavior": {
+      "type": "string",
+      "minLength": 1
+    },
+    "category": {
+      "enum": [
+        "UI",
+        "STATE",
+        "PERSISTENCE",
+        "TRANSACTION",
+        "INTEGRATION",
+        "SECURITY"
+      ]
+    },
+    "criticality": {
+      "enum": [
+        "CRITICAL",
+        "MAJOR",
+        "MINOR"
+      ]
+    },
+    "observability": {
+      "enum": [
+        "DIRECT",
+        "INDIRECT",
+        "INSTRUMENT_ASSISTED",
+        "UNAVAILABLE"
+      ]
+    },
+    "oracle_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "reference_revision": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

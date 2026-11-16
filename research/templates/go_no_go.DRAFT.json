@@ -1,0 +1,80 @@
+{
+  "version": "P1_DRAFT_2026-11-16",
+  "status": "DRAFT",
+  "approved_by": null,
+  "approved_at": null,
+  "criteria": [
+    {
+      "criterion_id": "MCP_LIVE_CALL",
+      "comparison": ">=",
+      "definition": "Rate of successful instrumented tool calls with verified runtime trace",
+      "threshold": null,
+      "owner": null,
+      "approved": false
+    },
+    {
+      "criterion_id": "TRACE_COMPLETENESS",
+      "comparison": ">=",
+      "definition": "Rate of runs with complete provenance/log evidence",
+      "threshold": null,
+      "owner": null,
+      "approved": false
+    },
+    {
+      "criterion_id": "SOURCE_ISOLATION",
+      "comparison": "==",
+      "definition": "Reference code and hidden oracles inaccessible from agent identity",
+      "threshold": null,
+      "owner": null,
+      "approved": false
+    },
+    {
+      "criterion_id": "AUTHORIZATION_EQUIVALENCE",
+      "comparison": "==",
+      "definition": "Same authorized target/permissions in all treatment arms",
+      "threshold": null,
+      "owner": null,
+      "approved": false
+    },
+    {
+      "criterion_id": "ORACLE_MUTATION_DETECTION",
+      "comparison": ">=",
+      "definition": "Mutant detection using only valid compiled executed behavior-changing defects",
+      "threshold": null,
+      "owner": null,
+      "approved": false
+    },
+    {
+      "criterion_id": "ORACLE_FALSE_REJECTION",
+      "comparison": "<=",
+      "definition": "Correct alternatives falsely rejected by external oracle",
+      "threshold": null,
+      "owner": null,
+      "approved": false
+    },
+    {
+      "criterion_id": "MAX_COST",
+      "comparison": "<=",
+      "definition": "Full per-run budget (environment, tool, LLM, human)",
+      "threshold": null,
+      "owner": null,
+      "approved": false
+    },
+    {
+      "criterion_id": "MAX_ATTRITION",
+      "comparison": "<=",
+      "definition": "Maximum predeclared missing/failed-run proportion",
+      "threshold": null,
+      "owner": null,
+      "approved": false
+    },
+    {
+      "criterion_id": "HUMAN_INTERVENTIONS",
+      "comparison": "<=",
+      "definition": "Operator interventions allowed per run",
+      "threshold": null,
+      "owner": null,
+      "approved": false
+    }
+  ]
+}
