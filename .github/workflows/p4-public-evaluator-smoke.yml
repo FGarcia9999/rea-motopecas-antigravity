@@ -1,0 +1,132 @@
+name: REA P4 — public handoff/oracle quality smoke (not an experiment)
+
+on:
+  push:
+    branches:
+      - research/p4-evaluator-handoff-oracle-quality-2026-11-16
+    paths:
+      - .github/workflows/p4-public-evaluator-smoke.yml
+      - research/handoff/**
+      - research/oracles/toy_correct_alternative.py
+      - research/oracles/toy_meta_quality.py
+      - tests/test_research_handoff.py
+      - tests/test_research_oracle_meta.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  public-controls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install requirements
+        run: python -m pip install -r requirements-dev.txt
+      - name: Construct and verify a toy agent submission outside Git checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/p4-agent/src" "$RUNNER_TEMP/p4-agent/web"
+          mkdir -p "$RUNNER_TEMP/p4-transfer" "$RUNNER_TEMP/p4-evaluator"
+          printf "print('public toy only')\n" > "$RUNNER_TEMP/p4-agent/src/service.py"
+          printf "<title>Synthetic candidate</title>\n" > "$RUNNER_TEMP/p4-agent/web/index.html"
+          python -m research.handoff.bundle pack \
+            --workspace "$RUNNER_TEMP/p4-agent" \
+            --archive "$RUNNER_TEMP/p4-transfer/candidate.zip" \
+            --run-id PUBLIC_SYNTHETIC_RUN --treatment T3 \
+            > "$RUNNER_TEMP/p4-evaluator/handoff-export.json"
+          python -m research.handoff.bundle verify \
+            --archive "$RUNNER_TEMP/p4-transfer/candidate.zip" \
+            --inbox "$RUNNER_TEMP/p4-evaluator/candidate-source" --extract \
+            > "$RUNNER_TEMP/p4-evaluator/handoff-verify.json"
+          python - <<'PY'
+          import json,os,pathlib
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])/"p4-evaluator"
+          a=json.loads((root/"handoff-export.json").read_text())
+          b=json.loads((root/"handoff-verify.json").read_text())
+          assert a["archive_sha256"]==b["archive_sha256"]
+          assert b["files_checked"]==2
+          assert b["untrusted_code_executed"] is False
+          assert b["evaluator_private_oracles_accessed"] is False
+          print("P4_TRANSFER_FORMAT_AND_HASHES_PASS=true")
+          print("P4_HANDOFF_CODE_EXECUTED=false")
+          PY
+      - name: Run three public, disposable local API implementations
+        shell: bash
+        run: |
+          set -euo pipefail
+          export MOTO_DB_PATH="$RUNNER_TEMP/p4-reference.db"
+          python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 > "$RUNNER_TEMP/p4-reference.log" 2>&1 &
+          python -m research.oracles.toy_mutant --port 8001 > "$RUNNER_TEMP/p4-mutant.log" 2>&1 &
+          python -m research.oracles.toy_correct_alternative --port 8002 > "$RUNNER_TEMP/p4-alternative.log" 2>&1 &
+          for port in 8000 8001 8002; do
+            for n in $(seq 1 40); do
+              if curl -fsS "http://127.0.0.1:$port/api/health" -o /dev/null; then break; fi
+              sleep 0.5
+            done
+            curl -fsS "http://127.0.0.1:$port/api/health" -o /dev/null
+          done
+          python -m research.oracles.toy_suite --output "$RUNNER_TEMP/p4-evaluator/public-suite.json"
+      - name: Public positive reference and correct-alternative controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m research.oracles.blackbox \
+            --suite "$RUNNER_TEMP/p4-evaluator/public-suite.json" \
+            --target http://127.0.0.1:8000 --run-id PUBLIC_REFERENCE \
+            --report "$RUNNER_TEMP/p4-evaluator/public-reference.json"
+          python -m research.oracles.blackbox \
+            --suite "$RUNNER_TEMP/p4-evaluator/public-suite.json" \
+            --target http://127.0.0.1:8002 --run-id PUBLIC_CORRECT_ALTERNATIVE \
+            --report "$RUNNER_TEMP/p4-evaluator/public-alternative.json"
+      - name: Public known mutant MUST be rejected, then calculate toy-quality indicators
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          python -m research.oracles.blackbox \
+            --suite "$RUNNER_TEMP/p4-evaluator/public-suite.json" \
+            --target http://127.0.0.1:8001 --run-id PUBLIC_MUTANT \
+            --report "$RUNNER_TEMP/p4-evaluator/public-mutant.json"
+          rc=$?
+          set -e
+          test "$rc" -eq 3
+          python -m research.oracles.toy_meta_quality \
+            --reference "$RUNNER_TEMP/p4-evaluator/public-reference.json" \
+            --mutant "$RUNNER_TEMP/p4-evaluator/public-mutant.json" \
+            --alternative "$RUNNER_TEMP/p4-evaluator/public-alternative.json" \
+            --report "$RUNNER_TEMP/p4-evaluator/public-quality-summary.json"
+          python - <<'PY'
+          import json,os,pathlib
+          base=pathlib.Path(os.environ["RUNNER_TEMP"])/"p4-evaluator"
+          q=json.loads((base/"public-quality-summary.json").read_text())
+          assert q["actual_hidden_test_count"]==0
+          assert q["independent_review"] is False
+          assert q["no_go_approved"] is False
+          assert q["valid_mutants"]==1 and q["detected_valid_mutants"]==1
+          assert q["verified_correct_alternatives"]==1 and q["false_rejected_alternatives"]==0
+          assert q["classification"]=="PUBLIC_TOY_CONTROLS_ONLY_NON_GENERALIZABLE"
+          print("P4_PUBLIC_ORACLE_POSITIVE_AND_NEGATIVE_CONTROLS_PASS=true")
+          print("P4_HIDDEN_ORACLE_REVIEWED=false")
+          PY
+      - name: Upload minimized PUBLIC toy reports, not source or private fixtures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p4-public-evaluator-controls
+          path: |
+            ${{ runner.temp }}/p4-evaluator/handoff-export.json
+            ${{ runner.temp }}/p4-evaluator/handoff-verify.json
+            ${{ runner.temp }}/p4-evaluator/public-reference.json
+            ${{ runner.temp }}/p4-evaluator/public-mutant.json
+            ${{ runner.temp }}/p4-evaluator/public-alternative.json
+            ${{ runner.temp }}/p4-evaluator/public-quality-summary.json
+          if-no-files-found: warn
+          retention-days: 14
