@@ -88,6 +88,8 @@ jobs:
           docker inspect --format '{{json .}}' p3-agent > "$RUNNER_TEMP/p3-public-reports/agent-inspect.json"
           docker inspect --format '{{json .}}' p3-reference > "$RUNNER_TEMP/p3-public-reports/reference-inspect.json"
           docker inspect --format '{{json .}}' p3-evaluator > "$RUNNER_TEMP/p3-public-reports/evaluator-inspect.json"
+          docker network inspect --format '{{json .}}' p3-agent-net > "$RUNNER_TEMP/p3-public-reports/agent-network.json"
+          docker network inspect --format '{{json .}}' p3-evaluator-net > "$RUNNER_TEMP/p3-public-reports/evaluator-network.json"
 
           # Read only public metadata; private evaluator sentinel content is never output.
           python research/isolation/verify_host.py \
@@ -95,11 +97,14 @@ jobs:
             --reference "$RUNNER_TEMP/p3-public-reports/reference-inspect.json" \
             --evaluator "$RUNNER_TEMP/p3-public-reports/evaluator-inspect.json" \
             --probe "$RUNNER_TEMP/p3-public-reports/agent-probe.json" \
+            --agent-network "$RUNNER_TEMP/p3-public-reports/agent-network.json" \
+            --evaluator-network "$RUNNER_TEMP/p3-public-reports/evaluator-network.json" \
             --report "$RUNNER_TEMP/p3-public-reports/isolation-summary.json"
 
           # Do NOT upload raw docker-inspect: it may contain host bind paths.
           # Preserve only redacted check booleans and test results.
           rm "$RUNNER_TEMP/p3-public-reports/"*"-inspect.json"
+          rm "$RUNNER_TEMP/p3-public-reports/"*"-network.json"
           python - <<'PY'
           import json,os,pathlib
           report=pathlib.Path(os.environ["RUNNER_TEMP"])/"p3-public-reports"/"isolation-summary.json"
