@@ -50,3 +50,8 @@ The public utility \`summarize_oracle_quality()\` uses **only compiling, execute
 **Next physical milestones:** evaluator-side ground truth private store, complete authorization-equivalence map, experimental run isolation harness, independent external oracle suite, validated live REA/MCP calls, then team approval and 20-run exploratory pilot. No T0–T3 runs were performed here.
 
 See [Experimental Protocol v1.2](../docs/research/EXPERIMENTAL_PROTOCOL_v1.2.md), [Directive v1.1](../docs/research/RESEARCH_DIRECTIVE_v1.1.md), [Roadmap v2.2](../docs/research/ROADMAP_v2.2.md).
+
+
+### WP2 local CLI smoke checkpoint (16/11/2026)
+
+A GitHub-hosted disposable Ubuntu runner successfully executed official `rea-agents@6.9.0` CLI target discovery and passive inspection of the local Rota 2 app. A separate controlled CDP driver clicked `Freios` during a 10-second REA capture, observing two HTTP 200 product requests (one category-filtered) and 2 UI products. See [auditable evidence report](WP2_CLI_SMOKE_EVIDENCE_2026-11-16.md) and [GitHub run](https://github.com/FGarcia9999/rea-motopecas-antigravity/actions/runs/43932452118). **Do not classify this as a Windows/Antigravity MCP session, independent oracle evaluation, source-hidden comparison or P2 research-team freeze.** The running version 6.9.0 rejects the development-only `--approved` flag; explicit loopback-origin environment controls were used instead.

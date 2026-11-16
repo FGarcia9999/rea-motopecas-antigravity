@@ -1,6 +1,6 @@
-# WP2 — Real REA/MCP observation runbook (NOT YET EXECUTED)
+# WP2 — Real REA/MCP observation runbook (CLI Linux smoke completed; Windows/Antigravity pending)
 
-**Research protocol:** v1.2. **Date:** 2026-11-16. **Status:** P2 NOT VERIFIED, no authentic REA/MCP invocation trace. These are instructions for an authorized Windows PowerShell lab.
+**Research protocol:** v1.2. **Date:** 2026-11-16. **Status:** a real CLI-only Linux smoke was run on 2026-11-16, with browser-target discovery and filter capture (see [evidence report](WP2_CLI_SMOKE_EVIDENCE_2026-11-16.md)). **Scientific gate P2 is NOT FROZEN**; there is no Antigravity/MCP client invocation on Windows or independent reviewer attestation. The following commands are for a separate authorized Windows PowerShell lab.
 
 **Official sources checked:** https://rea.tools/get-started/ ; https://rea.tools/guides/browser/ ; https://github.com/morluto/rea/blob/main/docs/getting-started/installation.md
 
@@ -11,7 +11,8 @@ A named operator must approve the selected local target, the exact REA package r
 ~~~powershell
 node --version
 npm --version
-$REA_VERSION = "PREENCHER_VERSAO_HOMOLOGADA"
+# Supported Node.js: 22.23.4+, 24.22.1+, or 26.12.1+. Reject older 22.x / 24.x.
+$REA_VERSION = "6.9.0" # candidate verified in isolated GitHub Actions; approve before installing locally
 # After operator approval for the exact package:
 npx.cmd -y "rea-agents@$REA_VERSION" --version
 # Read-only setup plan:
@@ -23,6 +24,18 @@ npx.cmd -y "rea-agents@$REA_VERSION" setup --client antigravity --dry-run
 ~~~
 
 Setup and doctor do NOT establish a real tool call; separate the 5 levels: installed, configured, visible, executed, decision-useful. Official rea-agents is independent of the project-local rea-instrument and rea-integrate skills.
+
+## REA release compatibility and authorization
+
+On 2026-11-16 the published `rea-agents@6.9.0` CLI returned **Unknown flag: --approved** when invoked with a development-branch flag. It worked without that flag, using an explicitly approved local CLI action and a fail-closed environment policy. **Never silently relax permissions:** the operator must explicitly authorize the invocation and set these process-local restrictions before starting REA:
+
+~~~powershell
+$env:REA_BROWSER_OBSERVE_ENABLED = 'true'
+$env:REA_BROWSER_CDP_ENDPOINTS_JSON = '["http://127.0.0.1:9222"]'
+$env:REA_BROWSER_ALLOWED_ORIGINS_JSON = '["http://127.0.0.1:8000"]'
+~~~
+
+The `--approved` flag is **not used for release 6.9.0**. Consult `--help` and the exact release's permission model before changing versions. `doctor` and `setup` are not observation proofs.
 
 ## Inspect only a local, disposable training application
 
@@ -68,4 +81,4 @@ Hashing proves only byte integrity. A documented, witnessed call needs exact REA
 4. Require independent hidden oracle suites external to implementing agents; validate reference PASS, valid executed mutants, correct alternative implementations, metamorphic and double adjudication.
 5. Approve numeric no-go thresholds and named owners before collecting any pilot outcomes.
 
-**Result of this development milestone:** RUNBOOK ONLY. Real REA/MCP tool execution, isolation and experiment remain NOT VERIFIED.
+**Evidence now available:** actual **REA CLI** `list-browser-targets` and `inspect-web-page` calls were successfully executed in an isolated Ubuntu GitHub Actions runner, with a controlled filter click on the Rota 2 local target and externally verifiable logs/manifest. See [WP2 evidence report](WP2_CLI_SMOKE_EVIDENCE_2026-11-16.md). **Still NOT VERIFIED:** the Windows/Antigravity MCP client registration, independent review, a source-hidden reconstruction trial, the protocol's P2 research-team freeze, and all comparative T0–T3 results.
