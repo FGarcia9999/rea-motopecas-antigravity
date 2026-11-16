@@ -28,3 +28,8 @@ Workflow: discovery -> specification -> TDD RED -> TDD GREEN -> refactor -> comp
 - ProgramDistill is a **preprint**; its 59.2% observation-failure share is among 977 analyzed failed behaviors, not all benchmark tasks.
 - Do not publish reference source, ground truth, hidden test suites or non-redacted traces in the public GitHub repository.
 - WP1/WP2/WP3, independent oracles and pilot are still pending; do not fill manuscript Results from CI.
+
+
+## Public-repository scientific boundary (2026-11-16)
+
+**Never commit** evaluator-only reference source code, true private ground-truth contracts, hidden behavioral suites, private reviewer notes, credentials, raw HAR/PCAP, or non-redacted observation logs. Public synthetic examples are allowed only when explicitly labeled PUBLIC TOY. Run `python scripts/check_research_public_boundary.py` before proposing a commit; CI runs it too. A successful scan is NOT a comprehensive secret-leak audit. An unexpected sensitive file means **stop publication**, quarantine appropriately and consult an independent security reviewer; do not merely rename or ignore it. `research/gates/readiness.py` is a **HOLD report**, not pilot authorization. Do not change DRAFT to APPROVED to make gates green. The team must verify real Antigravity/MCP calls, genuine independent hidden benchmark, reviewer adjudication and signed P1–P4 thresholds outside the public repo. Keep M1 v0.4 Results empty until valid controlled runs exist.
