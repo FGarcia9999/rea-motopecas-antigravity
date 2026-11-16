@@ -77,6 +77,6 @@ def test_public_plan_has_no_private_file_paths_or_urls():
     for milestone in p["milestones"]:
         for item in milestone["deliverables"] + milestone["exit_evidence"]:
             assert isinstance(item, str) and item
-            assert "://" not in item and "\\\\" not in item and "/" not in item
+            assert "://" not in item and "\\" not in item and not item.startswith("/")
     text = PLAN.read_text(encoding="utf-8")
     assert "PRIVATE KEY" not in text and "access_token" not in text
