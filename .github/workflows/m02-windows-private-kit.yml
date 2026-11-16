@@ -1,0 +1,52 @@
+name: REA M02 — Windows operator-kit preparation (NOT Antigravity execution)
+
+on:
+  push:
+    branches:
+      - research/m02-antigravity-local-evidence-kit-2026-11-16
+    paths:
+      - .github/workflows/m02-windows-private-kit.yml
+      - research/antigravity/**
+      - tests/test_research_antigravity_session.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-packaging-only:
+    runs-on: windows-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project and test dependencies
+        shell: pwsh
+        run: python -m pip install -r requirements-dev.txt
+      - name: Validate private-evidence contract with synthetic unit data
+        shell: pwsh
+        run: python -m pytest -q tests/test_research_antigravity_session.py
+      - name: Execute Windows PowerShell preparation without npm or Antigravity
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $private = Join-Path $env:RUNNER_TEMP 'rea-m02-windows-private-synthetic'
+          & .\research\antigravity\Prepare-M02-Windows.ps1 -PrivateDir $private
+          if ($LASTEXITCODE -ne 0) { throw 'PRIVATE_M02_PREPARATION_FAILED' }
+          python -m research.antigravity.session audit --private-dir $private
+          if ($LASTEXITCODE -ne 0) { throw 'PRIVATE_M02_AUDIT_FAILED' }
+          $report = Get-Content -LiteralPath (Join-Path $private 'audit-redacted-candidate.json') -Raw | ConvertFrom-Json
+          if ($report.local_intake_status -ne 'INCOMPLETE_PRIVATE_RECORD') { throw 'FALSE_COMPLETE_RECORD' }
+          if ($report.antigravity_client_real_tool_use_independently_verified -ne $false) { throw 'FALSE_CLIENT_ATTESTATION' }
+          if ($report.pilot_authorized -ne $false) { throw 'FALSE_PILOT_APPROVAL' }
+          Write-Output 'M02_WINDOWS_PACKAGING_TEST=SUCCESS'
+          Write-Output 'M02_REAL_ANTIGRAVITY_INVOCATION=NOT_EXECUTED'
+          Write-Output 'M02_SCIENTIFIC_P2=HOLD'
+      - name: Do not upload private evidence
+        shell: pwsh
+        run: |
+          Write-Output 'NO_M02_PRIVATE_EVIDENCE_IS_UPLOADED=true'

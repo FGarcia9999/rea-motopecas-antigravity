@@ -90,3 +90,8 @@ A [public DRAFT role matrix and single-canary access probe](custody/README.md) a
 ### M02 — execução MCP stdio real, cliente Antigravity pendente (16/11/2026)
 
 O [checkpoint de execução MCP](../docs/research/M02_REAL_MCP_STDIO_CHECKPOINT_2026-11-16.md) e a implementação testada em [research/mcp_stdio_smoke.py](mcp_stdio_smoke.py) documentam **dois tools/call reais** do REA oficial no ambiente descartável. O [procedimento Antigravity](M02_ANTIGRAVITY_HOMOLOGATION_RUNBOOK.md) permanece a ser executado no cliente Windows, com prova independente. P2 científico permanece HOLD, T0–T3 não iniciados.
+
+
+### M02 — Operator evidence kit for actual Antigravity Windows (16 November 2026)
+
+The [Antigravity evidence kit](antigravity/README.md) and [technical checkpoint](../docs/research/M02_ANTIGRAVITY_EVIDENCE_KIT_CHECKPOINT_2026-11-16.md) provide Windows PowerShell setup for a private records folder, checksums and negative verification controls. Unlike the real independent stdio MCP smoke, this kit **does not run the Antigravity agent** and cannot self-authenticate its records. P2 scientific HOLD; no T0–T3 trial.

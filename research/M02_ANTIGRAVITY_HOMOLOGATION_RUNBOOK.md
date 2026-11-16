@@ -59,3 +59,8 @@ O prefixo exibido na UI pode variar: usar o nome EFETIVO da ferramenta. Guardar,
 **P2 científico continua HOLD até** atribuir operadores, congelar versões/catálogo, comparar permissões T0–T3, medir custos e auditar autenticamente as chamadas e sua utilização. Não anunciar piloto.
 
 Fontes: https://github.com/morluto/rea/blob/main/docs/getting-started/installation.md ; https://github.com/morluto/rea/blob/main/docs/reference/mcp-contracts.md ; https://github.com/morluto/rea/blob/main/docs/guides/web/browser-observation.md
+
+
+## Kit preparatório no Windows — sem autorização automática
+
+Antes de configurar o cliente, consulte [research/antigravity/README.md](antigravity/README.md). O script `research/antigravity/Prepare-M02-Windows.ps1` cria um diretório privado e um manifesto DRAFT para coletar evidências reais. Sua execução **não liga nem configura o Antigravity**. O parâmetro opcional `-InspectRea` só consulta o release fixado e executa dry-run de configuração, podendo baixar o pacote para o cache. O auditor `python -m research.antigravity.session audit --private-dir <PRIVATE_FOLDER>` verifica integridade, **não** identidade de origem. Todo dado bruto deve permanecer sob custódia privada até atesto independente; nenhum status produzido por script concede GO em P2.
