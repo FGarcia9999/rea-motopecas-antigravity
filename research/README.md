@@ -70,3 +70,8 @@ A separately restricted agent process could access only the synthetic Rota 2 API
 ### WP3 — Avaliador: entrada de benchmark privado (16/11/2026)
 
 O novo [contrato de custódia e intake](benchmark/README.md) verifica a estrutura e os hashes de fonte e oráculos externos ao repositório e gera apenas metadados públicos minimizados. O [checkpoint](../docs/research/WP3_BENCHMARK_INTAKE_CHECKPOINT_2026-11-16.md) descreve o que não foi comprovado: nenhum benchmark privado independente, isolamento sob LLM real, aprovação de P1–P4 ou piloto T0–T3.
+
+
+### Proteção de publicação e bloqueio científico do piloto (16/11/2026)
+
+Antes de qualquer push ao repositório público, executar `python scripts/check_research_public_boundary.py`. A verificação no CI examina arquivos rastreados, mas **não substitui** revisão humana de segredos nem saneia histórico já publicado. O estado atual de P1–P4 pode ser lido em `python -m research.gates.readiness`, que **não autoriza** o piloto. Consulte [registro de prontidão](../docs/research/PILOT_P1_P4_READINESS_2026-11-16.md) e [orientação do gate](gates/README.md).
