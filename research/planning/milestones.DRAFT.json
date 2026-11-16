@@ -1,0 +1,221 @@
+{
+  "schema_version": "0.1",
+  "title": "REA pre-pilot evidence and custody plan",
+  "classification": "PUBLIC_METHOD_INFRASTRUCTURE_ONLY",
+  "status": "DRAFT_HOLD",
+  "protocol": "docs/research/EXPERIMENTAL_PROTOCOL_v1.2.md",
+  "directive": "docs/research/RESEARCH_DIRECTIVE_v1.1.md",
+  "primary_estimand": "E[Y(T3)]-E[Y(T1)]",
+  "pilot_total_planned": 20,
+  "pilot_repetitions_per_arm_planned": 5,
+  "treatment_mapping": [
+    {
+      "id": "T0",
+      "workflow": false,
+      "instrumentation": false
+    },
+    {
+      "id": "T1",
+      "workflow": true,
+      "instrumentation": false
+    },
+    {
+      "id": "T2",
+      "workflow": false,
+      "instrumentation": true
+    },
+    {
+      "id": "T3",
+      "workflow": true,
+      "instrumentation": true
+    }
+  ],
+  "no_go_metric_ids": [
+    "MCP_LIVE_CALL",
+    "TRACE_COMPLETENESS",
+    "SOURCE_ISOLATION",
+    "AUTHORIZATION_EQUIVALENCE",
+    "ORACLE_MUTATION_DETECTION",
+    "ORACLE_FALSE_REJECTION",
+    "MAX_COST",
+    "MAX_ATTRITION",
+    "HUMAN_INTERVENTIONS"
+  ],
+  "milestones": [
+    {
+      "id": "M00",
+      "title": "Custody and authorization",
+      "depends_on": [],
+      "gate": "P1",
+      "owner_role": "research_lead_and_private_custodian",
+      "owner_assigned": false,
+      "status": "PENDING",
+      "private_evidence_required": true,
+      "deliverables": [
+        "authorization_and_access_matrix",
+        "independent_custody_identity",
+        "retention_and_security_policy"
+      ],
+      "exit_evidence": [
+        "private access review",
+        "real actor separation"
+      ]
+    },
+    {
+      "id": "M01",
+      "title": "Independent source-hidden reference",
+      "depends_on": [
+        "M00"
+      ],
+      "gate": "P3",
+      "owner_role": "independent_reference_custodian",
+      "owner_assigned": false,
+      "status": "PENDING",
+      "private_evidence_required": true,
+      "deliverables": [
+        "new_independent_reference",
+        "private_ground_truth",
+        "baseline_hashes_and_initial_state"
+      ],
+      "exit_evidence": [
+        "reference deployable on common authorized runtime",
+        "reference source inaccessible to agent"
+      ]
+    },
+    {
+      "id": "M02",
+      "title": "Live Antigravity MCP instrumentation",
+      "depends_on": [
+        "M00"
+      ],
+      "gate": "P2",
+      "owner_role": "instrumentation_operator",
+      "owner_assigned": false,
+      "status": "PENDING",
+      "private_evidence_required": true,
+      "deliverables": [
+        "release_and_tool_catalog_hash",
+        "real_mcp_call_trace",
+        "authorization_map_t0_t3"
+      ],
+      "exit_evidence": [
+        "real Antigravity client call independently witnessed",
+        "trace and scope reviewed"
+      ]
+    },
+    {
+      "id": "M03",
+      "title": "Real-agent adversarial isolation",
+      "depends_on": [
+        "M01",
+        "M02"
+      ],
+      "gate": "P3",
+      "owner_role": "security_reviewer",
+      "owner_assigned": false,
+      "status": "PENDING",
+      "private_evidence_required": true,
+      "deliverables": [
+        "actual_agent_access_probes",
+        "filesystem_network_connector_denials",
+        "alternate_path_threat_review"
+      ],
+      "exit_evidence": [
+        "source/oracle isolation attested by independent principal",
+        "scope limitations documented"
+      ]
+    },
+    {
+      "id": "M04",
+      "title": "Independent hidden oracle meta-evaluation",
+      "depends_on": [
+        "M01"
+      ],
+      "gate": "P4",
+      "owner_role": "independent_oracle_evaluator",
+      "owner_assigned": false,
+      "status": "PENDING",
+      "private_evidence_required": true,
+      "deliverables": [
+        "frozen_hidden_suite",
+        "reference_pass",
+        "valid_executed_mutant_and_correct_alternative_study",
+        "double_review_adjudication"
+      ],
+      "exit_evidence": [
+        "private oracle measures and uncertainties reviewed",
+        "false rejection monitored"
+      ]
+    },
+    {
+      "id": "M05",
+      "title": "External P1-P4 sign-off and protocol freeze",
+      "depends_on": [
+        "M02",
+        "M03",
+        "M04"
+      ],
+      "gate": "P1-P4",
+      "owner_role": "research_team_and_independent_reviewer",
+      "owner_assigned": false,
+      "status": "PENDING",
+      "private_evidence_required": true,
+      "deliverables": [
+        "nine_numeric_thresholds_and_owners",
+        "frozen_treatments_and_budget",
+        "signed_gate_release_or_hold"
+      ],
+      "exit_evidence": [
+        "all P1-P4 approved externally",
+        "no_go thresholds set before seeing pilot results"
+      ]
+    },
+    {
+      "id": "M06",
+      "title": "Randomized exploratory pilot",
+      "depends_on": [
+        "M05"
+      ],
+      "gate": "WP4",
+      "owner_role": "experiment_operator",
+      "owner_assigned": false,
+      "status": "PENDING",
+      "private_evidence_required": true,
+      "deliverables": [
+        "20_planned_independent_run_records",
+        "randomization_and_reset_audit",
+        "complete_failures_cost_and_timeout_logs"
+      ],
+      "exit_evidence": [
+        "all executed and failed/blocked runs accounted for",
+        "independent oracle outcomes reviewed"
+      ]
+    },
+    {
+      "id": "M07",
+      "title": "Pilot review and confirmatory protocol freeze",
+      "depends_on": [
+        "M06"
+      ],
+      "gate": "WP5",
+      "owner_role": "statistician_and_research_team",
+      "owner_assigned": false,
+      "status": "PENDING",
+      "private_evidence_required": true,
+      "deliverables": [
+        "pilot_distribution_and_precision_review",
+        "confirmatory_power_and_cost_decision",
+        "signed_analysis_protocol"
+      ],
+      "exit_evidence": [
+        "confirmatory protocol independent of selected main-study outcomes",
+        "manuscript results only when verified"
+      ]
+    }
+  ],
+  "study_results_recorded": 0,
+  "actual_hidden_suite_in_public_repo": false,
+  "scientific_pilot_authorized": false,
+  "independent_approvals_obtained": false,
+  "note": "Milestones and roles are proposed, not named appointments or attestations."
+}

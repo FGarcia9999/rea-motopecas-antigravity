@@ -75,3 +75,8 @@ O novo [contrato de custódia e intake](benchmark/README.md) verifica a estrutur
 ### Proteção de publicação e bloqueio científico do piloto (16/11/2026)
 
 Antes de qualquer push ao repositório público, executar `python scripts/check_research_public_boundary.py`. A verificação no CI examina arquivos rastreados, mas **não substitui** revisão humana de segredos nem saneia histórico já publicado. O estado atual de P1–P4 pode ser lido em `python -m research.gates.readiness`, que **não autoriza** o piloto. Consulte [registro de prontidão](../docs/research/PILOT_P1_P4_READINESS_2026-11-16.md) e [orientação do gate](gates/README.md).
+
+
+### Pre-pilot planning v0.1 (2026-11-16)
+
+The [execution plan](../docs/research/PRE_PILOT_EXECUTION_PLAN_v0.1_2026-11-16.md), [custody SOP](../docs/research/EVALUATOR_CUSTODY_SOP_v0.1_2026-11-16.md), [pre-registration decisions](../docs/research/PREREGISTRATION_DECISIONS_v0.1_2026-11-16.md), and [machine-readable milestones](planning/README.md) establish dependencies and acceptance evidence for the **unstarted** WP4. They add no private oracle or reference sources, do not approve the nine no-go gates, and do not supersede Protocol v1.2 or Manuscript M1 v0.4.
