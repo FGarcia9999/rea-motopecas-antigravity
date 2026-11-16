@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "WP1 no-go gate threshold template — draft threshold null until research team approves",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "status",
+    "criteria"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "DRAFT",
+        "APPROVED"
+      ]
+    },
+    "approved_by": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "approved_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "criteria": {
+      "type": "array",
+      "minItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "criterion_id",
+          "definition",
+          "comparison",
+          "threshold",
+          "owner",
+          "approved"
+        ],
+        "properties": {
+          "criterion_id": {
+            "enum": [
+              "MCP_LIVE_CALL",
+              "TRACE_COMPLETENESS",
+              "SOURCE_ISOLATION",
+              "AUTHORIZATION_EQUIVALENCE",
+              "ORACLE_MUTATION_DETECTION",
+              "ORACLE_FALSE_REJECTION",
+              "MAX_COST",
+              "MAX_ATTRITION",
+              "HUMAN_INTERVENTIONS"
+            ]
+          },
+          "definition": {
+            "type": "string",
+            "minLength": 1
+          },
+          "comparison": {
+            "enum": [
+              ">=",
+              "<=",
+              "=="
+            ]
+          },
+          "threshold": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "owner": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "approved": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

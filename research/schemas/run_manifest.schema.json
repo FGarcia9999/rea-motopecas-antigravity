@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Per-run manifest — run is primary experimental unit",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "study_id",
+    "run_id",
+    "application_id",
+    "treatment_id",
+    "status",
+    "seed_label",
+    "artifact_workspace",
+    "authorization_scope",
+    "isolation_status",
+    "started_at"
+  ],
+  "properties": {
+    "study_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "application_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "treatment_id": {
+      "enum": [
+        "T0",
+        "T1",
+        "T2",
+        "T3"
+      ]
+    },
+    "status": {
+      "enum": [
+        "PLANNED",
+        "RUNNING",
+        "SUCCEEDED",
+        "FAILED",
+        "TIMED_OUT",
+        "BUDGET_EXHAUSTED",
+        "BLOCKED"
+      ]
+    },
+    "seed_label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "artifact_workspace": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authorization_scope": {
+      "type": "string",
+      "minLength": 1
+    },
+    "isolation_status": {
+      "enum": [
+        "NOT_VERIFIED",
+        "VERIFIED",
+        "FAILED"
+      ]
+    },
+    "started_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "model_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "environment_sha256": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "treatment_sha256": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "declared_complete": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "failure_code": {
+      "enum": [
+        "NONE",
+        "DISCOVERY",
+        "SPECIFICATION",
+        "IMPLEMENTATION",
+        "VERIFICATION",
+        "GOVERNANCE",
+        "ENVIRONMENT",
+        "SAFETY",
+        "UNKNOWN"
+      ]
+    },
+    "tokens_consumed": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "elapsed_seconds": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "human_interventions": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "cost_usd": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    }
+  }
+}

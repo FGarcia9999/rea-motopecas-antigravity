@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Public evidence metadata; NEVER include raw credentials, personal data or HAR",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "evidence_id",
+    "record_type",
+    "epistemic_status",
+    "source",
+    "captured_at",
+    "behavior_id"
+  ],
+  "properties": {
+    "evidence_id": {
+      "type": "string",
+      "pattern": "^EV-[A-Z0-9_-]+$"
+    },
+    "record_type": {
+      "enum": [
+        "TOOL_CALL",
+        "MANUAL",
+        "UNAVAILABLE"
+      ]
+    },
+    "epistemic_status": {
+      "enum": [
+        "OBSERVED",
+        "INFERRED",
+        "UNKNOWN",
+        "UNAVAILABLE"
+      ]
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1
+    },
+    "captured_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "behavior_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "artifact_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "tool_invocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tool_name",
+        "tool_version",
+        "arguments_sha256",
+        "result_sha256",
+        "target",
+        "duration_ms"
+      ],
+      "properties": {
+        "tool_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tool_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "arguments_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "result_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "duration_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "status": {
+          "enum": [
+            "SUCCESS",
+            "ERROR",
+            "TIMEOUT"
+          ]
+        }
+      }
+    },
+    "decision_link": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requirement_id",
+        "decision_id",
+        "verification_status"
+      ],
+      "properties": {
+        "requirement_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "decision_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "verification_status": {
+          "enum": [
+            "VERIFIED",
+            "NOT_VERIFIED"
+          ]
+        }
+      }
+    },
+    "limitations": {
+      "type": "string"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "record_type": {
+            "const": "TOOL_CALL"
+          }
+        },
+        "required": [
+          "record_type"
+        ]
+      },
+      "then": {
+        "required": [
+          "tool_invocation",
+          "artifact_sha256"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "epistemic_status": {
+            "const": "OBSERVED"
+          }
+        },
+        "required": [
+          "epistemic_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "record_type": {
+            "enum": [
+              "TOOL_CALL",
+              "MANUAL"
+            ]
+          }
+        },
+        "required": [
+          "artifact_sha256"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "record_type": {
+            "const": "UNAVAILABLE"
+          }
+        },
+        "required": [
+          "record_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "epistemic_status": {
+            "const": "UNAVAILABLE"
+          }
+        }
+      }
+    }
+  ]
+}

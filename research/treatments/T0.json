@@ -1,0 +1,34 @@
+{
+  "treatment_id": "T0",
+  "structured_workflow": false,
+  "rea_instrumentation": false,
+  "status": "DRAFT",
+  "baseline_agent": "CONVENTIONAL_LLM_AGENT_TO_DEFINE",
+  "tools_allowed": [
+    "AUTHORIZED_BROWSER"
+  ],
+  "permissions": {
+    "authorized_target": "LOCAL_AUTHORIZED_TARGET_TO_DEFINE",
+    "filesystem_policy": "AGENT_WORKSPACE_ONLY",
+    "network_policy": "ALLOWLIST_UNDEFINED_PENDING_APPROVAL",
+    "credential_policy": "NO_SHARED_SECRETS"
+  },
+  "model_id": "TO_SELECT",
+  "version_manifest": {
+    "agent": "TO_SELECT",
+    "browser": "TO_HOMOLOGATE",
+    "runtime": "TO_HOMOLOGATE",
+    "prompts_sha256": null,
+    "skills_sha256": null,
+    "rea_release": null,
+    "mcp_schema_sha256": null
+  },
+  "stop_rule": "TO_FREEZE_BEFORE_PILOT",
+  "approved_by": null,
+  "approved_at": null,
+  "budget": {
+    "wall_seconds": null,
+    "max_tool_calls": null,
+    "token_cap": null
+  }
+}

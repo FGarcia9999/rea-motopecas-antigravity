@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Evaluator-only meta-evaluation results: no hidden tests in public repository",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "application_id",
+    "reference_passed",
+    "mutation_trials",
+    "correct_alternatives",
+    "adjudication",
+    "status"
+  ],
+  "properties": {
+    "application_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "reference_passed": {
+      "type": "boolean"
+    },
+    "status": {
+      "enum": [
+        "DRAFT",
+        "REVIEWED"
+      ]
+    },
+    "mutation_trials": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mutant_id",
+          "compiled",
+          "executed",
+          "behavior_changed",
+          "oracle_detected"
+        ],
+        "properties": {
+          "mutant_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "compiled": {
+            "type": "boolean"
+          },
+          "executed": {
+            "type": "boolean"
+          },
+          "behavior_changed": {
+            "type": "boolean"
+          },
+          "oracle_detected": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "correct_alternatives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "implementation_id",
+          "verified_correct",
+          "oracle_rejected"
+        ],
+        "properties": {
+          "implementation_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "verified_correct": {
+            "type": "boolean"
+          },
+          "oracle_rejected": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "adjudication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "double_reviewed",
+        "disagreements",
+        "resolved"
+      ],
+      "properties": {
+        "double_reviewed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "disagreements": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "resolved": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "reviewer_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}
