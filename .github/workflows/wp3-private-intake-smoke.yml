@@ -1,0 +1,70 @@
+name: REA WP3 — evaluator-only benchmark intake (PUBLIC toy demo)
+
+on:
+  push:
+    branches:
+      - research/wp3-private-benchmark-intake-2026-11-16
+    paths:
+      - .github/workflows/wp3-private-intake-smoke.yml
+      - research/benchmark/**
+      - tests/test_research_benchmark_intake.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  private-intake-public-fixture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install research validator dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Generate public toy recipe privately in disposable runner storage
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          python -m research.benchmark.public_fixture \
+            --destination "$RUNNER_TEMP/rea-private-demo"
+          python -m research.benchmark.intake \
+            --reference-dir "$RUNNER_TEMP/rea-private-demo/reference" \
+            --oracle-suite "$RUNNER_TEMP/rea-private-demo/evaluator/oracle.json" \
+            --policy "$RUNNER_TEMP/rea-private-demo/evaluator/policy.json" \
+            --private-record "$RUNNER_TEMP/rea-private-demo/evaluator/intake-private.json" \
+            --public-attestation "$RUNNER_TEMP/rea-public-report/intake-redacted.json"
+          python - <<'PY'
+          import json,os,pathlib
+          tmp=pathlib.Path(os.environ["RUNNER_TEMP"])
+          public=(tmp/"rea-public-report/intake-redacted.json").read_text()
+          private=(tmp/"rea-private-demo/evaluator/intake-private.json").read_text()
+          source=(tmp/"rea-private-demo/reference/runtime.py").read_text()
+          label=json.loads(public)
+          assert label["classification"]=="REDACTED_BENCHMARK_CANDIDATE_METADATA_ONLY"
+          assert label["study_runs_executed"]==0
+          assert label["source_hidden_from_real_agent"] is False
+          assert label["oracle_hidden_from_real_agent"] is False
+          assert label["scientific_P1_P4_approved"] is False
+          assert "runtime.py" in private and "runtime.py" not in public
+          assert "/rea-private-demo" not in public
+          token=source.split("TOKEN = ")[1].splitlines()[0].strip(" '\"")
+          assert token not in public
+          print("REDACTED_PUBLIC_ATTESTATION_ONLY=true")
+          print("PRIVATE_SOURCE_LEAKED=false")
+          print("HIDDEN_BENCHMARK_SCIENTIFICALLY_APPROVED=false")
+          print("REAL_AGENT_ISOLATION_ATTESTED=false")
+          PY
+      - name: Upload only sanitized metadata, never source, suite, policy or tokens
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rea-private-intake-public-toy-summary
+          path: ${{ runner.temp }}/rea-public-report/intake-redacted.json
+          if-no-files-found: warn
+          retention-days: 14
